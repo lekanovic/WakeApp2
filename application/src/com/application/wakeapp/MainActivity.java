@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends Activity {
@@ -54,11 +54,12 @@ public class MainActivity extends Activity {
     private Boolean usedatabase;
     private final String PATH_TO_DATABASE =
             "data/data/com.application.wakeapp/databases/stationNames";
+    private static final String LOG_TAG = "WakeApp";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        System.out.println("Radde123 onCreate " + isServiceStarted);
+        Log.d(LOG_TAG," onCreate " + isServiceStarted);
 
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
         outsidethreshold = Integer.parseInt(prefs.getString("outsidethreshold","500"));
@@ -68,7 +69,7 @@ public class MainActivity extends Activity {
         prefs.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                System.out.println("Radde123 onSharedPreferenceChanged: " + s);
+                Log.d(LOG_TAG,"onSharedPreferenceChanged: " + s);
                 // If the user have changed searchradius we need to discard the database
                 // and re-fetch the station list from server.
                 if ( s.equals("searchradius") ){
@@ -77,11 +78,11 @@ public class MainActivity extends Activity {
 
             }
         });
-        System.out.println("Radde123 usedatabase: " + usedatabase );
+
         findGPSPosition();
 
         if ( checkDataBase()){
-            System.out.println("Radde123 Database exists");
+            Log.d(LOG_TAG,"Database exists");
             isThereAnDatabase = Boolean.TRUE;
         }
 
@@ -117,7 +118,7 @@ public class MainActivity extends Activity {
                 startActivity(startMain);
 
                 isServiceStarted = Boolean.TRUE;
-                System.out.println("Radde123 " + finalDestination.getLongitude() + " " + isServiceStarted);
+                Log.d(LOG_TAG, finalDestination.getLongitude() + " " + isServiceStarted);
             }
         });
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -287,7 +288,7 @@ public class MainActivity extends Activity {
             mDataBaseHandler.addLocation(l);
         }
         private void populateDatabase(){
-            System.out.println("Radde123 populateDatabase");
+            Log.d(LOG_TAG,"populateDatabase");
             Stations stations =
                     new Stations(myLocation.getLongitude(),
                             myLocation.getLatitude(),
@@ -317,9 +318,7 @@ public class MainActivity extends Activity {
                 Location l = new Location(name);
                 l.setLatitude(lat);
                 l.setLongitude(lng);
-                //System.out.println("Radde123 adding to data base: " + name + " lat: " +
-                //        lat + " lng: " + lng);
-
+                
                 mDataBaseHandler.addLocation(l);
             }
         }
@@ -336,12 +335,13 @@ public class MainActivity extends Activity {
                     }
 
             }
-            System.out.println("Radde123 haveWeBeenHereBefore TRUE distance: "
+            Log.d(LOG_TAG,"haveWeBeenHereBefore TRUE distance: "
                     + distanceTo + "meters");
             return ret;
         }
-        private void fetchFromServer(){
-            System.out.println("Radde123 fetchFromServer");
+        @SuppressWarnings("unused")
+		private void fetchFromServer(){
+            Log.d(LOG_TAG,"fetchFromServer");
             Stations stations =
                     new Stations(myLocation.getLongitude(),
                             myLocation.getLatitude(),
@@ -352,13 +352,9 @@ public class MainActivity extends Activity {
             stationListNameOnly = removeCoordinates(stationList);
         }
         private void fetchFromCache(){
-            System.out.println("Radde123 fetchFromCache");
+            Log.d(LOG_TAG,"fetchFromCache");
             stationList = mDataBaseHandler.getAllButPreviousString();
             stationListNameOnly = removeCoordinates(stationList);
-
-           // for ( String s : stationList){
-           //     System.out.println("Radde123 " + s);
-           // }
         }
 
         private ArrayList<String> removeCoordinates(ArrayList<String> l){
@@ -369,7 +365,6 @@ public class MainActivity extends Activity {
                 String tmp = l.get(i);
                 String[] temp = tmp.split(" ");
                 for ( int j=0;j<temp.length-2;j++){
-                    //System.out.println("Radde123" + temp[j]);
                     sb.append(temp[j] + " ");
                 }
                 newList.add(sb.toString());
@@ -378,17 +373,16 @@ public class MainActivity extends Activity {
             return  newList;
         }
         protected String doInBackground(String... urls) {
-            System.out.println("Radde123 doInBackground");
             long startTime = System.currentTimeMillis();
             do{//We need to get an position
                 try {
                     Thread.sleep(1000);
-                    System.out.println("Radde123 looking for GPS");
+                    Log.d(LOG_TAG,"looking for GPS");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }while(myLocation == null);
-            System.out.println("Radde123: Time to get GPS; " +
+            Log.d(LOG_TAG,"Time to get GPS; " +
                     (System.currentTimeMillis() - startTime)/1000 + " sec");
 
             // First start-up we don't have an database.
@@ -403,7 +397,7 @@ public class MainActivity extends Activity {
 
             addPreviousLocation();
 
-            System.out.println("Radde123 Pos found: lat: " +
+            Log.d(LOG_TAG,"Pos found: lat: " +
                     myLocation.getLatitude() + " lng: " +
                     myLocation.getLongitude());
 
@@ -412,7 +406,7 @@ public class MainActivity extends Activity {
                 public void run() {
                     mAdapter.addAll(stationListNameOnly);
                     mAdapter.notifyDataSetChanged();
-                    System.out.println("Radde123 notifyDataSetChanged len: " + stationListNameOnly.size());
+                    Log.d(LOG_TAG,"notifyDataSetChanged len: " + stationListNameOnly.size());
                     Toast t = Toast.makeText(getApplicationContext(),
                             "Station list updated",
                             Toast.LENGTH_LONG);
@@ -426,7 +420,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("Radde123 onResume " + isServiceStarted);
 
         if (isServiceStarted){
             mSearchView.setIconified(true);
@@ -448,7 +441,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        System.out.println("Radde123 onDestroy " + isServiceStarted);
+
         stopService(new Intent(MainActivity.this,
                 BackgroundService.class));
         isServiceStarted = Boolean.FALSE;
@@ -456,10 +449,8 @@ public class MainActivity extends Activity {
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        System.out.println("Radde123 onOptionsItemSelected id: " + item.getItemId());
 
         if (item.getTitle().equals("Settings")){
-            System.out.println("Radde123 we clicked Settings");
             Intent i = new Intent(MainActivity.this,WakeAppPreferences.class);
             startActivity(i);
         }
