@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Locale;
@@ -36,10 +37,10 @@ public class BackgroundService extends Service {
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
     private TextToSpeech tts;
     private SharedPreferences prefs;
-
+    private static final String LOG_TAG = "WakeApp";
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        System.out.println("Radde123 Service: onStartCommand");
+        Log.d(LOG_TAG,"Service: onStartCommand");
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification not = new Notification(R.drawable.ic_launcher, "WakeApp", System.currentTimeMillis());
         PendingIntent contentIntent =
@@ -53,8 +54,6 @@ public class BackgroundService extends Service {
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
         setradius = Integer.parseInt(prefs.getString("setradius","120"));
 
-        System.out.println("Radde123 setradius: " + setradius);
-
         finalDestination = new Location("Destination");
         finalDestination.setLongitude(intent.getExtras().getDouble("lng"));
         finalDestination.setLatitude(intent.getExtras().getDouble("lat"));
@@ -66,7 +65,7 @@ public class BackgroundService extends Service {
                 int distance;
                 currentSpeed = location.getSpeed();
                 distance = Math.round(location.distanceTo(finalDestination));
-                System.out.println("Radde123 onLocationChanged " + location.getProvider()
+                Log.d(LOG_TAG,"onLocationChanged " + location.getProvider()
                                     + "Speed: " + currentSpeed);
                 if ( distance < setradius ){
                    String msg = "You have reached your destination";
@@ -112,20 +111,19 @@ public class BackgroundService extends Service {
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener(){
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
-                    System.out.println("Radde123 SUCCESS ");
-                    System.out.println("Radde123 engine: " + tts.getDefaultEngine());
+                    Log.d(LOG_TAG,"engine: " + tts.getDefaultEngine());
 
                     int result = tts.setLanguage(Locale.US);
 
                     if (result == TextToSpeech.LANG_MISSING_DATA
                             || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        System.out.println("Radde123 This Language is not supported");
+                        Log.e(LOG_TAG,"This Language is not supported");
                     } else {
                         AudioManager amanager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
 
                         //If we do not have headset just vibrate
                         if (!amanager.isWiredHeadsetOn()){
-                            System.out.println("Radde123 isWiredHeadsetOn");
+                            Log.d(LOG_TAG,"isWiredHeadsetOn");
                             int dot = 200;      // Length of a Morse Code "dot" in milliseconds
                             int dash = 500;     // Length of a Morse Code "dash" in milliseconds
                             int short_gap = 200;    // Length of Gap Between dots/dashes
@@ -145,7 +143,7 @@ public class BackgroundService extends Service {
                             v.vibrate(pattern,-1);
 
                         } else if (amanager.isWiredHeadsetOn() && amanager.isMusicActive()){
-                            System.out.println("Radde123 music active");
+                            Log.d(LOG_TAG,"music active");
                             //Turn off music
                             Intent intent = new Intent("com.android.music.musicservicecommand.togglepause");
                             getApplicationContext().sendBroadcast(intent);
@@ -156,7 +154,7 @@ public class BackgroundService extends Service {
                                     TextToSpeech.QUEUE_FLUSH, null);
 
                             if (result == TextToSpeech.ERROR)
-                                System.out.println("Radde123 speach failed");
+                                Log.e(LOG_TAG,"speach failed");
 
                         } else {
                             amanager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
@@ -164,12 +162,12 @@ public class BackgroundService extends Service {
                                     TextToSpeech.QUEUE_FLUSH, null);
 
                             if (result == TextToSpeech.ERROR)
-                                System.out.println("Radde123 speach failed");
+                                Log.e(LOG_TAG,"speach failed");
                         }
 
                     }
                 } else {
-                    System.out.println("Radde123 Initilization Failed!");
+                    Log.e(LOG_TAG,"Initilization Failed!");
                 }
             }
         });
@@ -183,7 +181,7 @@ public class BackgroundService extends Service {
     public void onDestroy(){
         mNotificationManager.cancelAll();
         stopGPS();
-        System.out.println("Radde123 Service: onDestroy");
+        Log.d(LOG_TAG,"Service: onDestroy");
        // stopGPS();
         //stopSelf();
     }

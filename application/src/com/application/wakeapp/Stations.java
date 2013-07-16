@@ -38,7 +38,6 @@ public class Stations {
             sb.append("key=da562e01a1a10ae57652788f1d5dd642");
             url = sb.toString();
 
-            System.out.println("Radde123" + url);
             jParser = new JSONParser();
             json = jParser.getJSONFromUrl(url,Boolean.FALSE);
 
@@ -51,7 +50,6 @@ public class Stations {
                 //     JSONObject c = items.getJSONObject(i);
                 //     System.out.println("Radde123" + c.getString("name"));
                 // }
-                //System.out.println("Radde123 " + items.length());
             } catch (JSONException e) {
                 e.printStackTrace();
             }

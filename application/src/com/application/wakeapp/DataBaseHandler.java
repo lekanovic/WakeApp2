@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -25,7 +26,8 @@ public class DataBaseHandler extends SQLiteOpenHelper{
     private static final String KEY_NAME = "stationName";
     private static final String KEY_LATITUDE = "Lat";
     private static final String KEY_LONGITUDE = "Lng";
-
+    private static final String LOG_TAG = "WakeApp";
+    
     // previousSearch name has special meaning. All location
     // saved as stationName 'previousSearch' is location where
     // user was standing when doing the search. If the user does
@@ -49,7 +51,7 @@ public class DataBaseHandler extends SQLiteOpenHelper{
                         + "PRIMARY KEY (" + KEY_LATITUDE + "," + KEY_LONGITUDE + ")"
                         + ");";
 
-        System.out.println("Radde123 path to database" + sqLiteDatabase.getPath());
+        Log.d(LOG_TAG,"path to database" + sqLiteDatabase.getPath());
         sqLiteDatabase.execSQL(CREATE_STATION_TABLE);
     }
 
