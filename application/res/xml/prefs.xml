@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="setradius"
+        android:title="Radius before trigger"
+        android:summary="Distance to target before triggering, in meters"
+        android:inputType="numberDecimal"
+        android:defaultValue="120"
+            />
+    <EditTextPreference
+            android:key="searchradius"
+            android:title="Radius for station search"
+            android:summary="Using large value here will generate long list with nearby stations in meters"
+            android:inputType="numberDecimal"
+            android:defaultValue="10000"
+           />
+    <EditTextPreference
+        android:key="outsidethreshold"
+        android:title="Threshold"
+        android:inputType="numberDecimal"
+        android:summary="Threshold is used to decide if we have been on this location before.Since position form network is not accurate we need to use threshold value in meters"
+        android:defaultValue="500"
+            />
+    <SwitchPreference
+        android:key="usedatabase"
+        android:title="Use SQL cache"
+        android:summary="Warning! By not using cache there will be lot of network traffic generated. Also it will be much slower updating station list"
+        android:defaultValue="true"
+        />
+</PreferenceScreen>
