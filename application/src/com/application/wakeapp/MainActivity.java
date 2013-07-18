@@ -211,7 +211,7 @@ public class MainActivity extends Activity {
         // If the location is older then 3minutes
         // then we should consider it out-dated
         if ( (int)delta < (60*3) ){
-            System.out.println("Radde123: We got Quick GPS fix: " + delta);
+            Log.d(LOG_TAG,"We got Quick GPS fix: " + delta);
             myLocation = tmp;
             ret = Boolean.TRUE;
         }
@@ -280,7 +280,7 @@ public class MainActivity extends Activity {
     class Background extends AsyncTask<String, Integer, String> {
 
         private void addPreviousLocation() {
-            System.out.println("Radde123 addPreviousLocation");
+            Log.d(LOG_TAG,"addPreviousLocation");
             Location l = new Location("previousSearch");
             l.setLatitude(myLocation.getLatitude());
             l.setLongitude(myLocation.getLongitude());

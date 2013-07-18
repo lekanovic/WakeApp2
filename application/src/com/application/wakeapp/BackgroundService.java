@@ -38,6 +38,8 @@ public class BackgroundService extends Service {
     private TextToSpeech tts;
     private SharedPreferences prefs;
     private static final String LOG_TAG = "WakeApp";
+    private Boolean hasRestartedGPS;
+    
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG,"Service: onStartCommand");
@@ -57,7 +59,9 @@ public class BackgroundService extends Service {
         finalDestination = new Location("Destination");
         finalDestination.setLongitude(intent.getExtras().getDouble("lng"));
         finalDestination.setLatitude(intent.getExtras().getDouble("lat"));
-
+        
+        hasRestartedGPS=Boolean.FALSE;
+        
         mLocationListener = new LocationListener() {
 
             @Override
@@ -66,7 +70,17 @@ public class BackgroundService extends Service {
                 currentSpeed = location.getSpeed();
                 distance = Math.round(location.distanceTo(finalDestination));
                 Log.d(LOG_TAG,"onLocationChanged " + location.getProvider()
-                                    + "Speed: " + currentSpeed);
+                                    + " Speed: " + currentSpeed + " " +
+                		" Distance " + distance + " hasRestartedGPS " + hasRestartedGPS);
+                
+                // When we are closing in to our destination we should increase the
+                // GPS update freq so that we do not miss the station.
+                if ( distance > setradius && distance < 3*setradius && !hasRestartedGPS) {
+                	Log.d(LOG_TAG,"restarting GPS with high freq mode");
+                	restartGPS(1);
+                	hasRestartedGPS=Boolean.TRUE;
+                }
+                
                 if ( distance < setradius ){
                    String msg = "You have reached your destination";
                    Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
@@ -90,21 +104,21 @@ public class BackgroundService extends Service {
             }
         };
 
-        startGPS();
+        startGPS(MIN_TIME_BW_UPDATES);
 
         return Service.START_NOT_STICKY;
     }
-    public void startGPS(){
+    public void startGPS(long minTime){
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
         locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                minTime,MIN_DISTANCE_CHANGE_FOR_UPDATES,
                 mLocationListener);
 
         locationManager.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
-                MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                minTime,MIN_DISTANCE_CHANGE_FOR_UPDATES,
                 mLocationListener);
     }
     private void notifyUserDestinationReached(){
@@ -174,6 +188,11 @@ public class BackgroundService extends Service {
         stopGPS();
         stopSelf();
     }
+    public void restartGPS(long time){
+    	stopGPS();
+    	startGPS(1);  	
+    }
+    
     public void stopGPS(){
         locationManager.removeUpdates(mLocationListener);
     }

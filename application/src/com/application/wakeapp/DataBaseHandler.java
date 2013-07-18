@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 
 /**
- * Created by 23053969 on 2013-07-10.
+ * Created by Radovan Lekanovic on 2013-07-10.
  */
 public class DataBaseHandler extends SQLiteOpenHelper{
 
