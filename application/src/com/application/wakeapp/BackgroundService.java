@@ -39,6 +39,7 @@ public class BackgroundService extends Service {
     private SharedPreferences prefs;
     private static final String LOG_TAG = "WakeApp";
     private Boolean hasRestartedGPS;
+    private String destination_message;
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -62,6 +63,8 @@ public class BackgroundService extends Service {
         
         hasRestartedGPS=Boolean.FALSE;
         
+        destination_message = getResources().getString(R.string.arrive_message);
+        
         mLocationListener = new LocationListener() {
 
             @Override
@@ -82,8 +85,7 @@ public class BackgroundService extends Service {
                 }
                 
                 if ( distance < setradius ){
-                   String msg = "You have reached your destination";
-                   Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
+                   Toast.makeText(getApplicationContext(),destination_message,Toast.LENGTH_LONG).show();
                    notifyUserDestinationReached();
                 }
             }
@@ -164,7 +166,7 @@ public class BackgroundService extends Service {
 
                             amanager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
 
-                            result = tts.speak("You have arrived at your final destination",
+                            result = tts.speak(destination_message,
                                     TextToSpeech.QUEUE_FLUSH, null);
 
                             if (result == TextToSpeech.ERROR)
@@ -172,7 +174,7 @@ public class BackgroundService extends Service {
 
                         } else {
                             amanager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
-                            result = tts.speak("You have arrived at your final destination",
+                            result = tts.speak(destination_message,
                                     TextToSpeech.QUEUE_FLUSH, null);
 
                             if (result == TextToSpeech.ERROR)

@@ -4,5 +4,6 @@
     <string name="app_name">WakeApp</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-
+	<string name="arrive_message">You have arrived at your final destination thank you for choosing wake app</string>
+	    
 </resources>
