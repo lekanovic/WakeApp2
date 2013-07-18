@@ -165,7 +165,8 @@ public class BackgroundService extends Service {
                             getApplicationContext().sendBroadcast(intent);
 
                             amanager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
-
+                            
+                            tts.setPitch(0.8f);                           
                             result = tts.speak(destination_message,
                                     TextToSpeech.QUEUE_FLUSH, null);
 
@@ -174,6 +175,8 @@ public class BackgroundService extends Service {
 
                         } else {
                             amanager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
+                            
+                            tts.setPitch(0.8f);
                             result = tts.speak(destination_message,
                                     TextToSpeech.QUEUE_FLUSH, null);
 
@@ -203,8 +206,6 @@ public class BackgroundService extends Service {
         mNotificationManager.cancelAll();
         stopGPS();
         Log.d(LOG_TAG,"Service: onDestroy");
-       // stopGPS();
-        //stopSelf();
     }
     public IBinder onBind(Intent intent) {
         return null;
