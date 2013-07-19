@@ -395,7 +395,8 @@ public class MainActivity extends Activity {
             else
                 fetchFromCache();
 
-            addPreviousLocation();
+            if (!haveWeBeenHereBefore())
+            	addPreviousLocation();
 
             Log.d(LOG_TAG,"Pos found: lat: " +
                     myLocation.getLatitude() + " lng: " +
