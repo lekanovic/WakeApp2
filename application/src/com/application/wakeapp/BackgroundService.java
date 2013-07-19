@@ -86,7 +86,7 @@ public class BackgroundService extends Service {
                 
                 if ( distance < setradius ){
                    Toast.makeText(getApplicationContext(),destination_message,Toast.LENGTH_LONG).show();
-                   notifyUserDestinationReached();
+                   fireAlarm();
                 }
             }
 
@@ -122,6 +122,15 @@ public class BackgroundService extends Service {
                 LocationManager.NETWORK_PROVIDER,
                 minTime,MIN_DISTANCE_CHANGE_FOR_UPDATES,
                 mLocationListener);
+    }
+    private void fireAlarm(){
+    	Log.d(LOG_TAG,"fireAlarm");
+    	Intent intent = new Intent(BackgroundService.this,AlarmReceiverActivity.class);
+    	intent.setAction(Intent.ACTION_MAIN);
+    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);    	
+    	startActivity(intent);
+        stopGPS();
+        stopSelf();
     }
     private void notifyUserDestinationReached(){
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener(){
