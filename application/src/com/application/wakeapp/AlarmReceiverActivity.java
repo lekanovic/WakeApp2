@@ -51,6 +51,7 @@ public class AlarmReceiverActivity extends Activity{
             	mPlayer.stop();
             	          	  
             	goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            	goToMainActivity.putExtra("AlarmActivity", "PingByAlarm");
             	startActivity(goToMainActivity);
             	
             	finish();

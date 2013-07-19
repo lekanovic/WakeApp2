@@ -440,6 +440,22 @@ public class MainActivity extends Activity {
         isServiceStarted = Boolean.FALSE;
     }
     @Override
+    protected void onNewIntent(Intent intent){
+    	super.onNewIntent(intent);
+    	Log.d(LOG_TAG,"MainActivity onNewIntent " + intent.getStringExtra("AlarmActivity"));
+    	setIntent(intent);
+    	
+    	// If we get an intent from the AlarmActivity that means
+    	// we should exit application and set it to on-first-start-mode
+        if ( intent.getStringExtra("AlarmActivity").equals("PingByAlarm")){
+        	mSearchView.setIconified(true);
+            mListView.setVisibility(View.INVISIBLE);
+            mButton.setVisibility(View.INVISIBLE);
+            mTextView.setVisibility(View.INVISIBLE);
+            finish();
+        }
+    }
+    @Override
     protected void onDestroy(){
         super.onDestroy();
 
