@@ -442,12 +442,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent){
     	super.onNewIntent(intent);
-    	Log.d(LOG_TAG,"MainActivity onNewIntent " + intent.getStringExtra("AlarmActivity"));
     	setIntent(intent);
+    	String msg;
+    	    	
+    	msg = intent.getStringExtra("AlarmActivity");
+    	
+    	Log.d(LOG_TAG,"MainActivity onNewIntent " + msg);
     	
     	// If we get an intent from the AlarmActivity that means
     	// we should exit application and set it to on-first-start-mode
-        if ( intent.getStringExtra("AlarmActivity").equals("PingByAlarm")){
+        if ( msg != null && msg.equals("PingByAlarm")){
         	mSearchView.setIconified(true);
             mListView.setVisibility(View.INVISIBLE);
             mButton.setVisibility(View.INVISIBLE);
