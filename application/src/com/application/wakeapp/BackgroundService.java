@@ -78,7 +78,11 @@ public class BackgroundService extends Service {
                 
                 // When we are closing in to our destination we should increase the
                 // GPS update freq so that we do not miss the station.
-                if ( distance > setradius && distance < 3*setradius && !hasRestartedGPS) {
+                // Why 1800 meters?
+                // vehicle travels at avarage 10 - 30 meter-per-second.
+                // We check GPS pos every 60seconds. Meaning in worst case we can travel 60*30=1800meters
+                // before we check GPS and this will make us to miss our final destination.
+                if ( distance > setradius && distance < (1800 - setradius) && !hasRestartedGPS) {
                 	Log.d(LOG_TAG,"restarting GPS with high freq mode");
                 	restartGPS(1);
                 	hasRestartedGPS=Boolean.TRUE;
