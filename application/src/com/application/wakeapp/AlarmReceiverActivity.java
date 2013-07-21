@@ -125,6 +125,7 @@ public class AlarmReceiverActivity extends Activity{
 		vibrator.vibrate(pattern,1);
 		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,volume,0);
 		mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+		mPlayer.setLooping(true);
 		mPlayer.start();		
 	}
 	
@@ -192,7 +193,15 @@ public class AlarmReceiverActivity extends Activity{
     	
     }
     class Background extends AsyncTask<String, Integer, String> {
-
+    	
+    	private void sleep(int msec){
+			try {
+				Thread.sleep(msec);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+    	}
 		@Override
 		protected String doInBackground(String... arg0) {
 			// TODO Auto-generated method stub
@@ -205,31 +214,22 @@ public class AlarmReceiverActivity extends Activity{
 				if (isCancelled()) return null;
 				
 				Log.d(LOG_TAG," loop");
-				if (!mPlayer.isPlaying()){
-					playAlarm(i);
-					i+=5;
-				}
+
+				playAlarm(i);
+				i+=5;
+
+				sleep(duration);
 				
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
 			}
 			// Now put alarm sound on max volume and
 			// play it for an long time.
 			for (int i=0;i<1000;i++){
 				if (isCancelled()) return null;
+								
+				playAlarm(maxVol);
+								
+				sleep(duration);
 				
-				if (!mPlayer.isPlaying())
-					playAlarm(maxVol);
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}				
 			}
 			
 			return null;
