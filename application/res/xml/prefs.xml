@@ -29,4 +29,9 @@
         android:summary="Warning! By not using cache there will be lot of network traffic generated. Also it will be much slower updating station list"
         android:defaultValue="true"
         />
+    <RingtonePreference
+        android:key="ringtone"
+        android:title="Select alarm"
+        android:summary="Select alarm sound to use"
+        />
 </PreferenceScreen>

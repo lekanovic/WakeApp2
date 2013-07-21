@@ -6,21 +6,22 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
@@ -36,6 +37,8 @@ public class AlarmReceiverActivity extends Activity{
 	private AnimationDrawable animation;
 	private Handler handler;
 	private PowerManager pm;
+	private SharedPreferences prefs;
+	private Uri alarmURI;
 	private static final String LOG_TAG = "WakeApp";
 	
 	@SuppressWarnings("deprecation")
@@ -44,7 +47,10 @@ public class AlarmReceiverActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		Log.d(LOG_TAG,"AlarmReceiverActivity onCreate");
 		setContentView(R.layout.activity_alarm);
-		
+
+        prefs =  PreferenceManager.getDefaultSharedPreferences(this);
+        alarmURI = Uri.parse(prefs.getString("ringtone","default ringtone"));
+                
 		handler = new Handler();
 		animation = new AnimationDrawable();
 		
@@ -68,7 +74,7 @@ public class AlarmReceiverActivity extends Activity{
 		}, 100);
 		
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-		mPlayer = MediaPlayer.create(getApplicationContext(), R.raw.xperia_z_alarm);
+		mPlayer = MediaPlayer.create(getApplicationContext(), alarmURI);
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		mButton = (Button) findViewById(R.id.button1);
 		mButton.setOnClickListener(new View.OnClickListener(){
