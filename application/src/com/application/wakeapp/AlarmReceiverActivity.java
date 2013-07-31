@@ -49,7 +49,7 @@ public class AlarmReceiverActivity extends Activity{
 		setContentView(R.layout.activity_alarm);
 
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
-        alarmURI = Uri.parse(prefs.getString("ringtone","default ringtone"));
+        alarmURI = Uri.parse(prefs.getString("ringtone","Air"));
                 
 		handler = new Handler();
 		animation = new AnimationDrawable();
