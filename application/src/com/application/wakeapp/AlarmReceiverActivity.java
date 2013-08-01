@@ -53,7 +53,12 @@ public class AlarmReceiverActivity extends Activity{
 		setContentView(R.layout.activity_alarm);
 
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
-        alarmURI = Uri.parse(prefs.getString("ringtone","Air"));
+        alarmURI = Uri.parse(prefs.getString("ringtone","default ringtone"));
+        
+        // If we do not have any default ringtones in preferencemanager
+        // we have to add DEFAULT_RINGTONE otherwise we crash.
+        if ( alarmURI.toString().equals("default ringtone"))
+        	alarmURI = Settings.System.DEFAULT_RINGTONE_URI;
 
         final Animation animAccelerateDecelerate = AnimationUtils.loadAnimation(this, R.anim.animation);
         final ImageView image = (ImageView)findViewById(R.id.imageView1);
