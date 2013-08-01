@@ -422,8 +422,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (isServiceStarted){
-            mSearchView.setIconified(true);
+        if (isServiceStarted){            
             mTextView.setVisibility(View.VISIBLE);
             mButton.setVisibility(View.VISIBLE);
             mTextView.setText(getTravelInfo());
