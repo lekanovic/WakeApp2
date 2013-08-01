@@ -485,7 +485,7 @@ public class MainActivity extends Activity {
         if ( myLocation != null)
         	currentDistance = myLocation.distanceTo(finalDestination);
 
-        if (distance > 1000)
+        if (currentDistance > 1000)
             dist = String.format("%.3g km\n",currentDistance/1000);
         else
             dist = String.format("%.3g meter\n",currentDistance);
