@@ -480,11 +480,15 @@ public class MainActivity extends Activity {
     }
     private String getTravelInfo(){
         String dist;
+        Float currentDistance=0.0f;
+
+        if ( myLocation != null)
+        	currentDistance = myLocation.distanceTo(finalDestination);
 
         if (distance > 1000)
-            dist = String.format("%.3g km\n",distance/1000);
+            dist = String.format("%.3g km\n",currentDistance/1000);
         else
-            dist = String.format("%.3g meter\n",distance);
+            dist = String.format("%.3g meter\n",currentDistance);
 
         String info = "Final destination: " + stationName + "\n" +
                       "Distance to destination: " + dist +
