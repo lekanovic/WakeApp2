@@ -19,10 +19,14 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 @SuppressLint("NewApi")
@@ -50,13 +54,17 @@ public class AlarmReceiverActivity extends Activity{
 
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
         alarmURI = Uri.parse(prefs.getString("ringtone","Air"));
-                
+
+        final Animation animAccelerateDecelerate = AnimationUtils.loadAnimation(this, R.anim.animation);
+        final ImageView image = (ImageView)findViewById(R.id.imageView1);
+        image.startAnimation(animAccelerateDecelerate);
+        /*
 		handler = new Handler();
 		animation = new AnimationDrawable();
-		
-		destination_message = getResources().getString(R.string.arrive_message);		
+
+		destination_message = getResources().getString(R.string.arrive_message);
 		RelativeLayout layout = (RelativeLayout) findViewById(R.id.relativeLayout);
-				
+
 		animation.addFrame(new ColorDrawable(Color.BLUE), 100);
 		animation.addFrame(new ColorDrawable(Color.WHITE), 100);
 		animation.setOneShot(false);
@@ -72,7 +80,7 @@ public class AlarmReceiverActivity extends Activity{
 			}
 			
 		}, 100);
-		
+		*/
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		mPlayer = MediaPlayer.create(getApplicationContext(), alarmURI);
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
