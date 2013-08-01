@@ -141,6 +141,7 @@ public class MainActivity extends Activity {
 
                 mListView.setVisibility(View.INVISIBLE);
                 mButton.setVisibility(View.VISIBLE);
+                mTextView.setTextSize(20);
                 mTextView.setVisibility(View.VISIBLE);
                 mTextView.setText(getTravelInfo());
 
