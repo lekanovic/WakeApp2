@@ -7,16 +7,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.PowerManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -27,7 +22,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 @SuppressLint("NewApi")
 public class AlarmReceiverActivity extends Activity{
@@ -38,14 +32,10 @@ public class AlarmReceiverActivity extends Activity{
 	private Vibrator vibrator;
 	private AudioManager audioManager;
 	private Background backgroundThread;
-	private AnimationDrawable animation;
-	private Handler handler;
-	private PowerManager pm;
 	private SharedPreferences prefs;
 	private Uri alarmURI;
 	private static final String LOG_TAG = "WakeApp";
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -63,29 +53,7 @@ public class AlarmReceiverActivity extends Activity{
         final Animation animAccelerateDecelerate = AnimationUtils.loadAnimation(this, R.anim.animation);
         final ImageView image = (ImageView)findViewById(R.id.imageView1);
         image.startAnimation(animAccelerateDecelerate);
-        /*
-		handler = new Handler();
-		animation = new AnimationDrawable();
 
-		destination_message = getResources().getString(R.string.arrive_message);
-		RelativeLayout layout = (RelativeLayout) findViewById(R.id.relativeLayout);
-
-		animation.addFrame(new ColorDrawable(Color.BLUE), 100);
-		animation.addFrame(new ColorDrawable(Color.WHITE), 100);
-		animation.setOneShot(false);
-
-		layout.setBackground(animation);
-		
-		handler.postDelayed(new Runnable(){
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				animation.start();
-			}
-			
-		}, 100);
-		*/
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		mPlayer = MediaPlayer.create(getApplicationContext(), alarmURI);
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
