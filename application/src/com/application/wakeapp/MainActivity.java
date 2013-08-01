@@ -48,6 +48,7 @@ public class MainActivity extends Activity {
     private Float distance;
     private DataBaseHandler mDataBaseHandler;
     private Boolean isThereAnDatabase = Boolean.FALSE;
+    private Boolean isGPSEnabled = Boolean.FALSE;
     private SharedPreferences prefs;
     private int searchRadius;
     private int outsidethreshold;
