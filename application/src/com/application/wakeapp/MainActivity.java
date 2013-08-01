@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
         mTextView   = (TextView) findViewById(R.id.textView);
 
         mListView.setAdapter(mAdapter = new ArrayAdapter<String>(
-                            this,android.R.layout.simple_list_item_1,
+                            this,android.R.layout.test_list_item,
                     stationListNameOnly));
 
         mButton.setOnClickListener(new View.OnClickListener(){
