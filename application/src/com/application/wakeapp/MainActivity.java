@@ -52,6 +52,10 @@ public class MainActivity extends Activity {
     private int searchRadius;
     private int outsidethreshold;
     private Boolean usedatabase;
+    private LocationListener locationListener;
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+    // The minimum time between updates in milliseconds
+    private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
     private final String PATH_TO_DATABASE =
             "data/data/com.application.wakeapp/databases/stationNames";
     private static final String LOG_TAG = "WakeApp";
@@ -78,8 +82,7 @@ public class MainActivity extends Activity {
 
             }
         });
-
-        findGPSPosition();
+        
 
         if ( checkDataBase()){
             Log.d(LOG_TAG,"Database exists");
@@ -92,6 +95,8 @@ public class MainActivity extends Activity {
         mDataBaseHandler = new DataBaseHandler(MainActivity.this);
 
         new Background().execute();
+        
+        findGPSPosition();
 
         mSearchView = (SearchView) findViewById(R.id.searchView);
         mListView   = (ListView) findViewById(R.id.listView);
@@ -107,6 +112,8 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Intent newIntent = new Intent(MainActivity.this,BackgroundService.class);
+                
+                stopGPS();
 
                 newIntent.putExtra("lng",finalDestination.getLongitude());
                 newIntent.putExtra("lat",finalDestination.getLatitude());
@@ -220,6 +227,13 @@ public class MainActivity extends Activity {
         return ret;
     }
     private void findGPSPosition(){
+    	
+    	if (isGPSEnabled){
+    		Log.d(LOG_TAG,"GPS already up");
+    		return;
+    	} else
+    		Log.d(LOG_TAG,"Setting up GPS");
+
 
         locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
@@ -228,13 +242,16 @@ public class MainActivity extends Activity {
         // we should use it to get fast GPS coordinates.
         // Otherwise we need to use the GPS which takes
         // more time and consumes more power.
-        if (tryGetQuickGPSFix())
-            return;
+        //if (tryGetQuickGPSFix())
+        //    return;
 
-        LocationListener locationListener = new LocationListener() {
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+            	Log.d(LOG_TAG,"onLocationChanged");
                 myLocation = location;
+		if ( mTextView != null)
+                     mTextView.setText(getTravelInfo());                
             }
 
             @Override
@@ -253,14 +270,20 @@ public class MainActivity extends Activity {
             }
         };
 
-        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,
-                locationListener,null);
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                locationListener);
+        locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                locationListener);
+        locationManager.requestLocationUpdates(
+                LocationManager.PASSIVE_PROVIDER,
+                MIN_TIME_BW_UPDATES,MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                locationListener);
 
-        locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER,
-                locationListener,null);
-
-        locationManager.requestSingleUpdate(LocationManager.PASSIVE_PROVIDER,
-                locationListener,null);
+        isGPSEnabled = Boolean.TRUE;
 
     }
     // Check if database exits
@@ -278,6 +301,14 @@ public class MainActivity extends Activity {
         return checkDB != null ? true : false;
     }
 
+    public void stopGPS(){
+    	//if ( locationManager != null && locationListener != null)
+    	//	locationManager.removeUpdates(locationListener);
+    	Log.d(LOG_TAG,"Tearing down GPS");
+    	isGPSEnabled = Boolean.FALSE;
+    	locationManager.removeUpdates(locationListener);
+    }
+    
     class Background extends AsyncTask<String, Integer, String> {
 
         private void addPreviousLocation() {
@@ -422,7 +453,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        
+	// Find our new position if we have moved
+	findGPSPosition();
+	
         if (isServiceStarted){            
             mTextView.setVisibility(View.VISIBLE);
             mButton.setVisibility(View.VISIBLE);
@@ -433,8 +467,6 @@ public class MainActivity extends Activity {
             stopService(new Intent(MainActivity.this,
                     BackgroundService.class));
 
-            // Find our new position if we have moved
-            findGPSPosition();
             new Background().execute();
         }
         isServiceStarted = Boolean.FALSE;
@@ -462,11 +494,20 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-
+        
+        Log.d(LOG_TAG,"onDestroy");
+        stopGPS();
+        
         stopService(new Intent(MainActivity.this,
                 BackgroundService.class));
         isServiceStarted = Boolean.FALSE;
 
+    }
+    @Override
+    protected void onPause(){
+    	super.onPause();
+      	stopGPS();
+    	Log.d(LOG_TAG,"onPause");
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
