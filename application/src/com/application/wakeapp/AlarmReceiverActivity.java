@@ -179,8 +179,7 @@ public class AlarmReceiverActivity extends Activity{
 			try {
 				Thread.sleep(msec);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				 Thread.currentThread().interrupt(); // restore interrupted status
 			}		
     	}
 		@Override
