@@ -113,12 +113,15 @@
 
     <Button
         android:id="@+id/button"
-        style="@style/btnStyleGenoa"
+        style="@style/btnStyleBeige"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/listView"
+        android:layout_alignLeft="@+id/speed"
         android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/speed"
         android:text="Select final destination"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
         android:visibility="invisible" />
 
 </RelativeLayout>
