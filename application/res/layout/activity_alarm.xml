@@ -6,14 +6,16 @@
 
     <Button
         android:id="@+id/button1"
+        style="@style/btnStyleBeige"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:text="Shut off alarm" 
         android:layout_marginTop="14dp"
-        style="@style/btnStyleGenoa"
-        />
+        android:text="Shut off alarm"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
 
     <ImageView
         android:id="@+id/imageView1"
