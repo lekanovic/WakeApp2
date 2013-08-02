@@ -39,12 +39,17 @@ public class MainActivity extends Activity {
     private ListView mListView;
     private ArrayAdapter<String> mAdapter;
     private Button mButton;
-    private TextView mTextView;
+    private TextView mTextView1;
+    private TextView mTextViewStation;
+    private TextView mTextView3;
+    private TextView mTextViewDistance;
+    private TextView mTextView4;
+    private TextView mTextViewSpeed;
     private ArrayList<String> stationList;
     private ArrayList<String> stationListNameOnly;
     private LocationManager locationManager;
     private Boolean isServiceStarted = Boolean.FALSE;
-    private String stationName;
+    private String stationName="none";
     private Float distance;
     private DataBaseHandler mDataBaseHandler;
     private Boolean isThereAnDatabase = Boolean.FALSE;
@@ -102,8 +107,14 @@ public class MainActivity extends Activity {
         mSearchView = (SearchView) findViewById(R.id.searchView);
         mListView   = (ListView) findViewById(R.id.listView);
         mButton     = (Button) findViewById(R.id.button);
-        mTextView   = (TextView) findViewById(R.id.textView);
-
+        
+        mTextView1   = (TextView) findViewById(R.id.textView);      
+        mTextViewStation = (TextView) findViewById(R.id.station);
+        mTextView3 = (TextView) findViewById(R.id.textView2);
+        mTextViewDistance = (TextView) findViewById(R.id.distance);
+        mTextView4 = (TextView) findViewById(R.id.textView4);
+        mTextViewSpeed = (TextView) findViewById(R.id.speed);
+                
         mListView.setAdapter(mAdapter = new ArrayAdapter<String>(
                             this,android.R.layout.test_list_item,
                     stationListNameOnly));
@@ -149,9 +160,8 @@ public class MainActivity extends Activity {
 
                 mListView.setVisibility(View.INVISIBLE);
                 mButton.setVisibility(View.VISIBLE);
-                mTextView.setTextSize(20);
-                mTextView.setVisibility(View.VISIBLE);
-                mTextView.setText(getTravelInfo());
+                               
+                setTextView(View.VISIBLE);
 
                 hideSoftKeyboard();
             }
@@ -177,16 +187,45 @@ public class MainActivity extends Activity {
                     mListView.clearTextFilter();
                     mListView.setVisibility(View.INVISIBLE);
                     mButton.setVisibility(View.INVISIBLE);
-                    mTextView.setVisibility(View.INVISIBLE);
+                    //mTextView.setVisibility(View.INVISIBLE);                    
+                    setTextView(View.INVISIBLE);
                 } else {
                     mListView.setFilterText(newText.toString());
                     mListView.setVisibility(View.VISIBLE);
-                    mTextView.setVisibility(View.INVISIBLE);
+                   // mTextView.setVisibility(View.INVISIBLE);
+                    setTextView(View.INVISIBLE);
                 }
                 return true;
             }
         });
 
+    }
+    public void setTextView(int visible){
+        String dist;
+        Float currentDistance=0.0f;
+        String speed = String.format("%.3g km/h", myLocation.getSpeed()*(3.6));
+        Log.d(LOG_TAG,"setTextView visibility: " + visible);
+        
+        if ( myLocation != null)
+        	currentDistance = myLocation.distanceTo(finalDestination);
+
+        if (currentDistance > 1000)
+            dist = String.format("%.3g km",currentDistance/1000);
+        else
+            dist = String.format("%.3g meter",currentDistance);
+
+        mTextView1.setVisibility(visible);
+        mTextView3.setVisibility(visible);
+        mTextView4.setVisibility(visible);
+        
+        mTextViewSpeed.setText(speed);
+        mTextViewSpeed.setVisibility(visible);
+        
+        mTextViewDistance.setText(dist);
+        mTextViewDistance.setVisibility(visible);
+        
+        mTextViewStation.setText(stationName);
+        mTextViewStation.setVisibility(visible);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -251,8 +290,6 @@ public class MainActivity extends Activity {
             public void onLocationChanged(Location location) {
             	Log.d(LOG_TAG,"onLocationChanged");
                 myLocation = location;
-		if ( mTextView != null)
-                     mTextView.setText(getTravelInfo());                
             }
 
             @Override
@@ -459,9 +496,10 @@ public class MainActivity extends Activity {
 	findGPSPosition();
 	
         if (isServiceStarted){            
-            mTextView.setVisibility(View.VISIBLE);
+            //mTextView.setVisibility(View.VISIBLE);
             mButton.setVisibility(View.VISIBLE);
-            mTextView.setText(getTravelInfo());
+            //mTextView.setText(getTravelInfo());
+            setTextView(View.VISIBLE);
 
             // Stop the background service when we
             // resume the UI.
@@ -488,7 +526,8 @@ public class MainActivity extends Activity {
         	mSearchView.setIconified(true);
             mListView.setVisibility(View.INVISIBLE);
             mButton.setVisibility(View.INVISIBLE);
-            mTextView.setVisibility(View.INVISIBLE);
+            //mTextView.setVisibility(View.INVISIBLE);
+            setTextView(View.INVISIBLE);
             finish();
         }
     }
