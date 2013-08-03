@@ -200,6 +200,25 @@ public class MainActivity extends Activity {
         });
 
     }
+    public void updateText(){
+        String dist;
+        Float currentDistance=0.0f;
+        String speed = String.format("%.3g km/h", myLocation.getSpeed()*(3.6));
+        Log.d(LOG_TAG,"updateText");
+        
+        if ( myLocation != null)
+        	currentDistance = myLocation.distanceTo(finalDestination);
+
+        if (currentDistance > 1000)
+            dist = String.format("%.3g km",currentDistance/1000);
+        else
+            dist = String.format("%.3g meter",currentDistance);
+        
+        mTextViewSpeed.setText(speed);       
+        mTextViewDistance.setText(dist);        
+        mTextViewStation.setText(stationName);
+
+    }
     public void setTextView(int visible){
         String dist;
         Float currentDistance=0.0f;
@@ -290,6 +309,7 @@ public class MainActivity extends Activity {
             public void onLocationChanged(Location location) {
             	Log.d(LOG_TAG,"onLocationChanged");
                 myLocation = location;
+                updateText();
             }
 
             @Override
