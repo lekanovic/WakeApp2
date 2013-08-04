@@ -1,6 +1,7 @@
 package com.application.wakeapp;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,10 +10,14 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -58,7 +63,7 @@ public class MainActivity extends Activity {
     private int searchRadius;
     private int outsidethreshold;
     private Boolean usedatabase;
-    private LocationListener locationListener;
+    private LocationListener locationListener;   
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
@@ -99,10 +104,29 @@ public class MainActivity extends Activity {
         stationList = new ArrayList<String>();
         stationListNameOnly = new ArrayList<String>();
         mDataBaseHandler = new DataBaseHandler(MainActivity.this);
+	
+        // We must make sure that the user has enabled 3g traffic
+        // before we can proceed. If it's not enabled we should call
+        // finish() and open settings menu
+		if (!isDataTrafficEnabled()){
+			Log.d(LOG_TAG,"Data traffic is not enabled");
 
-        new Background().execute();
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("You must enable data traffic!");
+			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
+	            	finish();
+	            }
+	        });
+			AlertDialog alert = builder.create();
+			alert.show();
+		} else {
+		
+			new Background().execute();
         
-        findGPSPosition();
+        	findGPSPosition();
+		}
 
         mSearchView = (SearchView) findViewById(R.id.searchView);
         mListView   = (ListView) findViewById(R.id.listView);
@@ -200,6 +224,22 @@ public class MainActivity extends Activity {
         });
 
     }
+	private Boolean isDataTrafficEnabled(){
+		NetworkInfo networkInfo = null;
+        ConnectivityManager connectivityManager = 
+        		(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        
+        if (connectivityManager != null){
+        	networkInfo = connectivityManager
+                    .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		    if (!networkInfo.isAvailable()) {
+		    	networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+		    	
+		    }
+        }
+        
+		return networkInfo == null ? false : networkInfo.isConnected();
+	}
     public void updateText(){
         String dist;
         Float currentDistance=0.0f;
@@ -511,9 +551,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        
-	// Find our new position if we have moved
-	findGPSPosition();
+        Log.d(LOG_TAG,"onResume");
+		// Find our new position if we have moved
+		findGPSPosition();
 	
         if (isServiceStarted){            
             //mTextView.setVisibility(View.VISIBLE);
