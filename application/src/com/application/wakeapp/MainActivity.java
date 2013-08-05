@@ -262,11 +262,13 @@ public class MainActivity extends Activity {
     public void setTextView(int visible){
         String dist;
         Float currentDistance=0.0f;
-        String speed = String.format("%.3g km/h", myLocation.getSpeed()*(3.6));
+        String speed = "";
         Log.d(LOG_TAG,"setTextView visibility: " + visible);
         
-        if ( myLocation != null)
+        if ( myLocation != null) {
         	currentDistance = myLocation.distanceTo(finalDestination);
+        	speed = String.format("%.3g km/h", myLocation.getSpeed()*(3.6));
+        }
 
         if (currentDistance > 1000)
             dist = String.format("%.3g km",currentDistance/1000);
