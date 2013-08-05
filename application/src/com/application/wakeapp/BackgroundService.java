@@ -55,7 +55,7 @@ public class BackgroundService extends Service {
         mNotificationManager.notify(1, not);
 
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
-        setradius = Integer.parseInt(prefs.getString("setradius","120"));
+        setradius = Integer.parseInt(prefs.getString("setradius","600"));
 
         finalDestination = new Location("Destination");
         finalDestination.setLongitude(intent.getExtras().getDouble("lng"));
