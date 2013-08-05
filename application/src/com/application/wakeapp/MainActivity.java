@@ -36,6 +36,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+
 public class MainActivity extends Activity {
 
     private Location finalDestination;
@@ -93,8 +96,11 @@ public class MainActivity extends Activity {
 
             }
         });
-        
 
+        
+        AdView adView = (AdView)this.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest());
+                
         if ( checkDataBase()){
             Log.d(LOG_TAG,"Database exists");
             isThereAnDatabase = Boolean.TRUE;
