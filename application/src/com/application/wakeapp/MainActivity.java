@@ -104,7 +104,21 @@ public class MainActivity extends Activity {
         stationList = new ArrayList<String>();
         stationListNameOnly = new ArrayList<String>();
         mDataBaseHandler = new DataBaseHandler(MainActivity.this);
-	
+
+        // User should enable GPS
+        if (!isGPSSettingsEnabled()){
+        	Log.d(LOG_TAG,"GPS sensor is not enabled");
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("You must enable GPS sensor!");
+			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+	            	finish();
+	            }
+	        });
+			AlertDialog alert = builder.create();
+			alert.show();
+        }
         // We must make sure that the user has enabled 3g traffic
         // before we can proceed. If it's not enabled we should call
         // finish() and open settings menu
@@ -224,6 +238,19 @@ public class MainActivity extends Activity {
         });
 
     }
+    private Boolean isGPSSettingsEnabled(){
+    	Boolean isOn = Boolean.FALSE;
+
+    	String provider = Settings.Secure.getString(getContentResolver(),
+    			Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+
+        if(provider.equals("")){
+        	isOn = Boolean.FALSE;
+        } else
+        	isOn = Boolean.TRUE;
+
+        return isOn;
+    }    
 	private Boolean isDataTrafficEnabled(){
 		NetworkInfo networkInfo = null;
         ConnectivityManager connectivityManager = 
