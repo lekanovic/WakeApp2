@@ -99,9 +99,12 @@ public class AlarmReceiverActivity extends Activity{
                 long_gap
         };
         Log.d(LOG_TAG,"playAlarm volume: " + volume);
-        //Turn off music
-        Intent intent = new Intent("com.android.music.musicservicecommand.togglepause");
-        getApplicationContext().sendBroadcast(intent);
+
+        //Turn off music if it's playing
+        if (audioManager.isMusicActive()) {
+        	Intent intent = new Intent("com.android.music.musicservicecommand.togglepause");
+        	getApplicationContext().sendBroadcast(intent);
+        }
         
 		vibrator.vibrate(pattern,1);
 		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,volume,0);
@@ -124,9 +127,6 @@ public class AlarmReceiverActivity extends Activity{
                     } else {
                     	if (audioManager.isWiredHeadsetOn()){
 	                        Log.d(LOG_TAG,"music active");
-	                        //Turn off music
-	                        Intent intent = new Intent("com.android.music.musicservicecommand.togglepause");
-	                        getApplicationContext().sendBroadcast(intent);
 	
 	                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
 	                        
@@ -169,6 +169,11 @@ public class AlarmReceiverActivity extends Activity{
     }
 
     protected void onDestroy(){
+	if ( tts != null){
+    	    tts.stop();
+            tts.shutdown();
+    	}
+    	mPlayer.release();
     	super.onDestroy();
     	Log.d(LOG_TAG,"AlarmReceiverActivity onDestroy");
     	
