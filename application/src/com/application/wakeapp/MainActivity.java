@@ -33,6 +33,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +74,7 @@ public class MainActivity extends Activity {
     private final String PATH_TO_DATABASE =
             "data/data/com.application.wakeapp/databases/stationNames";
     private static final String LOG_TAG = "WakeApp";
+    private static final String DATABASE_NAME = "stationNames";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -421,19 +423,9 @@ public class MainActivity extends Activity {
     }
     // Check if database exits
     private boolean checkDataBase() {
-        SQLiteDatabase checkDB = null;
-        try {
-            checkDB = SQLiteDatabase.openDatabase(
-                    PATH_TO_DATABASE, null,
-                    SQLiteDatabase.OPEN_READONLY);
-
-            checkDB.close();
-        } catch (SQLiteException e) {
-            // database doesn't exist yet.
-        }
-        return checkDB != null ? true : false;
+        File dbFile=getApplicationContext().getDatabasePath(DATABASE_NAME);
+        return dbFile.exists();
     }
-
     public void stopGPS(){
     	//if ( locationManager != null && locationListener != null)
     	//	locationManager.removeUpdates(locationListener);
@@ -500,7 +492,7 @@ public class MainActivity extends Activity {
                     }
 
             }
-            Log.d(LOG_TAG,"haveWeBeenHereBefore TRUE distance: "
+            Log.d(LOG_TAG,"haveWeBeenHereBefore " + ret + " distance: "
                     + distanceTo + "meters");
             return ret;
         }
