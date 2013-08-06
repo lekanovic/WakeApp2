@@ -1,5 +1,6 @@
 package com.application.wakeapp;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
@@ -16,6 +17,8 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -24,7 +27,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 @SuppressLint("NewApi")
-public class AlarmReceiverActivity extends Activity{
+public class AlarmReceiverActivity extends Activity implements OnInitListener{
 	private MediaPlayer mPlayer;
 	private Button mButton;
 	private TextToSpeech tts;
@@ -35,6 +38,8 @@ public class AlarmReceiverActivity extends Activity{
 	private SharedPreferences prefs;
 	private Uri alarmURI;
 	private static final String LOG_TAG = "WakeApp";
+	private UtteranceProgressListener progressListener;
+	private HashMap<String, String> params = new HashMap<String, String>();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -53,28 +58,52 @@ public class AlarmReceiverActivity extends Activity{
         final Animation animAccelerateDecelerate = AnimationUtils.loadAnimation(this, R.anim.animation);
         final ImageView image = (ImageView)findViewById(R.id.imageView1);
         image.startAnimation(animAccelerateDecelerate);
-
+        
+        destination_message = getResources().getString(R.string.arrive_message);
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 		mPlayer = MediaPlayer.create(getApplicationContext(), alarmURI);
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		mButton = (Button) findViewById(R.id.button1);
-		mButton.setOnClickListener(new View.OnClickListener(){
+		tts = new TextToSpeech(getApplicationContext(), AlarmReceiverActivity.this);
+		params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"1");
+		progressListener = new UtteranceProgressListener() {
 
+			@Override
+			public void onDone(String utteranceId) {
+				// TODO Auto-generated method stub
+				Log.d(LOG_TAG,"Speech is done!!!!");
+				Intent goToMainActivity = new Intent(getApplicationContext(),MainActivity.class);
+            	goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            	goToMainActivity.putExtra("AlarmActivity", "PingByAlarm");
+            	startActivity(goToMainActivity);            	
+            	finish();
+			}
+
+			@Override
+			public void onError(String utteranceId) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onStart(String utteranceId) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		mButton.setOnClickListener(new View.OnClickListener(){		
+		
             @Override
             public void onClick(View view) {
-            	Intent goToMainActivity = new Intent(getApplicationContext(),MainActivity.class);
             	
+            	mButton.setEnabled(false);
             	notifyUserDestinationReached();
-            	
+           	
             	backgroundThread.cancel(true);
             	vibrator.cancel();
             	mPlayer.stop();
-            	          	  
-            	goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            	goToMainActivity.putExtra("AlarmActivity", "PingByAlarm");
-            	startActivity(goToMainActivity);
-            	
-            	finish();
+
             }
         });
 		
@@ -112,40 +141,21 @@ public class AlarmReceiverActivity extends Activity{
 		mPlayer.setLooping(true);
 		mPlayer.start();		
 	}
-	
-	private void notifyUserDestinationReached(){
-        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener(){
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS) {
-                    Log.d(LOG_TAG,"engine: " + tts.getDefaultEngine());
+	private void notifyUserDestinationReached(){		
+       	if (audioManager.isWiredHeadsetOn()){
+            Log.d(LOG_TAG,"music active");
+            
+            int result;
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
+            
+            tts.setPitch(0.8f);       
+            result = tts.speak(destination_message,
+                    TextToSpeech.QUEUE_FLUSH, params);
 
-                    int result = tts.setLanguage(Locale.US);
-
-                    if (result == TextToSpeech.LANG_MISSING_DATA
-                            || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.e(LOG_TAG,"This Language is not supported");
-                    } else {
-                    	if (audioManager.isWiredHeadsetOn()){
-	                        Log.d(LOG_TAG,"music active");
-	
-	                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
-	                        
-	                        tts.setPitch(0.8f);                           
-	                        result = tts.speak(destination_message,
-	                                TextToSpeech.QUEUE_FLUSH, null);
-	
-	                        if (result == TextToSpeech.ERROR)
-	                            Log.e(LOG_TAG,"speach failed");
-                    	}
-
-                    }
-                } else {
-                    Log.e(LOG_TAG,"Initilization Failed!");
-                }
-            }
-        });
-
-    }
+            if (result == TextToSpeech.ERROR)
+                Log.e(LOG_TAG,"speach failed");
+    	}
+	}
     
     protected void onRestart(){
     	super.onRestart();
@@ -221,5 +231,19 @@ public class AlarmReceiverActivity extends Activity{
 		}
     	
     }
+	@Override
+	public void onInit(int status) {		
+		if (status == TextToSpeech.SUCCESS) {
+            Log.d(LOG_TAG,"engine: " + tts.getDefaultEngine());
+            tts.setOnUtteranceProgressListener(progressListener);
+            int result = tts.setLanguage(Locale.US);
+
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e(LOG_TAG,"This Language is not supported");
+            }
+		
+		}
+	}
    
 }
