@@ -7,14 +7,14 @@
         android:title="Radius before trigger"
         android:summary="Distance to target before triggering, in meters"
         android:inputType="numberDecimal"
-        android:defaultValue="120"
+        android:defaultValue="500"
             />
     <EditTextPreference
             android:key="searchradius"
             android:title="Radius for station search"
             android:summary="Using large value here will generate long list with nearby stations in meters"
             android:inputType="numberDecimal"
-            android:defaultValue="10000"
+            android:defaultValue="15000"
            />
     <EditTextPreference
         android:key="outsidethreshold"
