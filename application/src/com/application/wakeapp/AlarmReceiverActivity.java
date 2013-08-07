@@ -143,6 +143,7 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 		mPlayer.setLooping(true);
 		mPlayer.start();
 	}
+	@SuppressWarnings("deprecation")
 	private void notifyUserDestinationReached(){
 		// If we have headset use use text-to-speech and read
 		// the message. When message is done exit activity and

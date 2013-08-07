@@ -58,7 +58,8 @@ public class MainActivity extends Activity {
     private LocationManager locationManager;
     private Boolean isServiceStarted = Boolean.FALSE;
     private String stationName="none";
-    private Float distance;
+    @SuppressWarnings("unused")
+	private Float distance;
     private DataBaseHandler mDataBaseHandler;
     private Boolean isThereAnDatabase = Boolean.FALSE;
     private Boolean isGPSEnabled = Boolean.FALSE;
@@ -70,8 +71,6 @@ public class MainActivity extends Activity {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
-    private final String PATH_TO_DATABASE =
-            "data/data/com.application.wakeapp/databases/stationNames";
     private static final String LOG_TAG = "WakeApp";
     private static final String DATABASE_NAME = "stationNames";
     @Override
@@ -231,13 +230,11 @@ public class MainActivity extends Activity {
                 if (TextUtils.isEmpty(newText)) {
                     mListView.clearTextFilter();
                     mListView.setVisibility(View.INVISIBLE);
-                    mButton.setVisibility(View.INVISIBLE);
-                    //mTextView.setVisibility(View.INVISIBLE);                    
+                    mButton.setVisibility(View.INVISIBLE);                    
                     setTextView(View.INVISIBLE);
                 } else {
                     mListView.setFilterText(newText.toString());
                     mListView.setVisibility(View.VISIBLE);
-                   // mTextView.setVisibility(View.INVISIBLE);
                     setTextView(View.INVISIBLE);
                 }
                 return true;

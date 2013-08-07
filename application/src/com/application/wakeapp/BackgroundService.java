@@ -10,16 +10,12 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.Locale;
 
 /**
  * Created by Radovan Lekanovic on 2013-07-07.
@@ -35,13 +31,13 @@ public class BackgroundService extends Service {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
-    private TextToSpeech tts;
     private SharedPreferences prefs;
     private static final String LOG_TAG = "WakeApp";
     private Boolean hasRestartedGPS;
     private String destination_message;
     
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG,"Service: onStartCommand");
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
