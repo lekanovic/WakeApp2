@@ -70,7 +70,6 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 
 			@Override
 			public void onDone(String utteranceId) {
-				// TODO Auto-generated method stub
 				Log.d(LOG_TAG,"Speech is done!!!!");
 				returnToMainActicity();
 			}
