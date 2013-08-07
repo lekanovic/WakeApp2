@@ -130,13 +130,7 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
                 long_gap
         };
         Log.d(LOG_TAG,"playAlarm volume: " + volume);
-
-        //Turn off music if it's playing
-        if (audioManager.isMusicActive()) {
-        	Intent intent = new Intent("com.android.music.musicservicecommand.pause");
-        	getApplicationContext().sendBroadcast(intent);
-        }
-        
+       
 		vibrator.vibrate(pattern,1);
 		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,volume,0);
 		mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -213,6 +207,14 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 			int duration = mPlayer.getDuration();
 			Log.d(LOG_TAG,"doInBackground maxvol: " + maxVol + " duration: " + duration);
 			
+	        //Turn off music if it's playing
+	        if (audioManager.isMusicActive()) {
+	        	Intent intent = 
+	        			new Intent("com.android.music.musicservicecommand.togglepause");
+	        	getApplicationContext().sendBroadcast(intent);
+	        	
+	        }
+	        
 			// increase volume slowly
 			for(int i=1;i<maxVol;){
 				if (isCancelled()) return null;
