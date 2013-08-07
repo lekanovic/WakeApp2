@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -35,6 +33,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import com.google.ads.AdRequest;
@@ -278,16 +277,16 @@ public class MainActivity extends Activity {
     public void updateText(){
         String dist;
         Float currentDistance=0.0f;
-        String speed = String.format("%.3g km/h", myLocation.getSpeed()*(3.6));
+        String speed = String.format(Locale.getDefault(),"%.3g km/h", myLocation.getSpeed()*(3.6));
         Log.d(LOG_TAG,"updateText");
         
         if ( myLocation != null)
         	currentDistance = myLocation.distanceTo(finalDestination);
 
         if (currentDistance > 1000)
-            dist = String.format("%.3g km",currentDistance/1000);
+            dist = String.format(Locale.getDefault(),"%.3g km",currentDistance/1000);
         else
-            dist = String.format("%.3g meter",currentDistance);
+            dist = String.format(Locale.getDefault(),"%.3g meter",currentDistance);
         
         mTextViewSpeed.setText(speed);       
         mTextViewDistance.setText(dist);        
@@ -302,13 +301,13 @@ public class MainActivity extends Activity {
         
         if ( myLocation != null) {
         	currentDistance = myLocation.distanceTo(finalDestination);
-        	speed = String.format("%.3g km/h", myLocation.getSpeed()*(3.6));
+        	speed = String.format(Locale.getDefault(),"%.3g km/h", myLocation.getSpeed()*(3.6));
         }
 
         if (currentDistance > 1000)
-            dist = String.format("%.3g km",currentDistance/1000);
+        	dist = String.format(Locale.getDefault(),"%.3g km",currentDistance/1000);
         else
-            dist = String.format("%.3g meter",currentDistance);
+        	dist = String.format(Locale.getDefault(),"%.3g meter",currentDistance);
 
         mTextView1.setVisibility(visible);
         mTextView3.setVisibility(visible);
@@ -337,7 +336,8 @@ public class MainActivity extends Activity {
         String[] tmp = s.split(" ");
         return Double.parseDouble(tmp[tmp.length-1]);
     }
-    private Boolean tryGetQuickGPSFix(){
+    @SuppressWarnings("unused")
+	private Boolean tryGetQuickGPSFix(){
         Boolean ret = Boolean.FALSE;
 
         Criteria criteria = new Criteria();
@@ -583,9 +583,7 @@ public class MainActivity extends Activity {
 		findGPSPosition();
 	
         if (isServiceStarted){            
-            //mTextView.setVisibility(View.VISIBLE);
             mButton.setVisibility(View.VISIBLE);
-            //mTextView.setText(getTravelInfo());
             setTextView(View.VISIBLE);
 
             // Stop the background service when we
@@ -646,23 +644,4 @@ public class MainActivity extends Activity {
 
         return true;
     }
-    private String getTravelInfo(){
-        String dist;
-        Float currentDistance=0.0f;
-
-        if ( myLocation != null)
-        	currentDistance = myLocation.distanceTo(finalDestination);
-
-        if (currentDistance > 1000)
-            dist = String.format("%.3g km\n",currentDistance/1000);
-        else
-            dist = String.format("%.3g meter\n",currentDistance);
-
-        String info = "Final destination: " + stationName + "\n" +
-                      "Distance to destination: " + dist +
-                      "Current speed: " + myLocation.getSpeed()*(3.6) + " km/h\n";
-
-        return info;
-    }
-
 }
