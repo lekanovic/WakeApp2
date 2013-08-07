@@ -72,11 +72,7 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 			public void onDone(String utteranceId) {
 				// TODO Auto-generated method stub
 				Log.d(LOG_TAG,"Speech is done!!!!");
-				Intent goToMainActivity = new Intent(getApplicationContext(),MainActivity.class);
-            	goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            	goToMainActivity.putExtra("AlarmActivity", "PingByAlarm");
-            	startActivity(goToMainActivity);            	
-            	finish();
+				returnToMainActicity();
 			}
 
 			@Override
@@ -112,6 +108,13 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 		
 		
 	}
+	private void returnToMainActicity(){
+		Intent goToMainActivity = new Intent(getApplicationContext(),MainActivity.class);
+    	goToMainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    	goToMainActivity.putExtra("AlarmActivity", "PingByAlarm");
+    	startActivity(goToMainActivity);            	
+    	finish();
+	}
 	private void playAlarm(int volume){
         int dot = 200;      // Length of a Morse Code "dot" in milliseconds
         int dash = 500;     // Length of a Morse Code "dash" in milliseconds
@@ -139,9 +142,13 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,volume,0);
 		mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		mPlayer.setLooping(true);
-		mPlayer.start();		
+		mPlayer.start();
 	}
-	private void notifyUserDestinationReached(){		
+	private void notifyUserDestinationReached(){
+		// If we have headset use use text-to-speech and read
+		// the message. When message is done exit activity and
+		// return to mainactivity. Otherwise just exit activit
+		// and return to mainactivity.
        	if (audioManager.isWiredHeadsetOn()){
             Log.d(LOG_TAG,"music active");
             
@@ -154,6 +161,8 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 
             if (result == TextToSpeech.ERROR)
                 Log.e(LOG_TAG,"speach failed");
+    	} else {
+    		returnToMainActicity();
     	}
 	}
     
