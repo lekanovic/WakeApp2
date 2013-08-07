@@ -134,7 +134,7 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 
         //Turn off music if it's playing
         if (audioManager.isMusicActive()) {
-        	Intent intent = new Intent("com.android.music.musicservicecommand.togglepause");
+        	Intent intent = new Intent("com.android.music.musicservicecommand.pause");
         	getApplicationContext().sendBroadcast(intent);
         }
         
