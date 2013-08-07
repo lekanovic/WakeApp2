@@ -75,7 +75,11 @@ public class BackgroundService extends Service {
                 Log.d(LOG_TAG,"onLocationChanged " + location.getProvider()
                                     + " Speed: " + currentSpeed + " " +
                 		" Distance " + distance + " hasRestartedGPS " + hasRestartedGPS);
+                String str = "onLocationChanged " + location.getProvider()
+                        + " Speed: " + currentSpeed + " " +
+    		" Distance " + distance + " hasRestartedGPS " + hasRestartedGPS;
                 
+                Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
                 // When we are closing in to our destination we should increase the
                 // GPS update freq so that we do not miss the station.
                 // Why 1800 meters?
@@ -84,6 +88,7 @@ public class BackgroundService extends Service {
                 // before we check GPS and this will make us to miss our final destination.
                 if ( distance > setradius && distance < (1800 - setradius) && !hasRestartedGPS) {
                 	Log.d(LOG_TAG,"restarting GPS with high freq mode");
+                	Toast.makeText(getApplicationContext(), "restarting GPS with high freq mode", Toast.LENGTH_LONG).show();
                 	restartGPS(1);
                 	hasRestartedGPS=Boolean.TRUE;
                 }
@@ -133,76 +138,6 @@ public class BackgroundService extends Service {
     	intent.setAction(Intent.ACTION_MAIN);
     	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);    	
     	startActivity(intent);
-        stopGPS();
-        stopSelf();
-    }
-    private void notifyUserDestinationReached(){
-        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener(){
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS) {
-                    Log.d(LOG_TAG,"engine: " + tts.getDefaultEngine());
-
-                    int result = tts.setLanguage(Locale.US);
-
-                    if (result == TextToSpeech.LANG_MISSING_DATA
-                            || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        Log.e(LOG_TAG,"This Language is not supported");
-                    } else {
-                        AudioManager amanager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
-
-                        //If we do not have headset just vibrate
-                        if (!amanager.isWiredHeadsetOn()){
-                            Log.d(LOG_TAG,"isWiredHeadsetOn");
-                            int dot = 200;      // Length of a Morse Code "dot" in milliseconds
-                            int dash = 500;     // Length of a Morse Code "dash" in milliseconds
-                            int short_gap = 200;    // Length of Gap Between dots/dashes
-                            int medium_gap = 500;   // Length of Gap Between Letters
-                            int long_gap = 1000;    // Length of Gap Between Words
-                            long[] pattern = {
-                                    0,  // Start immediately
-                                    dot, short_gap, dot, short_gap, dot,    // s
-                                    medium_gap,
-                                    dash, short_gap, dash, short_gap, dash, // o
-                                    medium_gap,
-                                    dot, short_gap, dot, short_gap, dot,    // s
-                                    long_gap
-                            };
-
-                            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                            v.vibrate(pattern,-1);
-
-                        } else if (amanager.isWiredHeadsetOn() && amanager.isMusicActive()){
-                            Log.d(LOG_TAG,"music active");
-                            //Turn off music
-                            Intent intent = new Intent("com.android.music.musicservicecommand.togglepause");
-                            getApplicationContext().sendBroadcast(intent);
-
-                            amanager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
-                            
-                            tts.setPitch(0.8f);                           
-                            result = tts.speak(destination_message,
-                                    TextToSpeech.QUEUE_FLUSH, null);
-
-                            if (result == TextToSpeech.ERROR)
-                                Log.e(LOG_TAG,"speach failed");
-
-                        } else {
-                            amanager.setStreamVolume(AudioManager.STREAM_MUSIC,12,0);
-                            
-                            tts.setPitch(0.8f);
-                            result = tts.speak(destination_message,
-                                    TextToSpeech.QUEUE_FLUSH, null);
-
-                            if (result == TextToSpeech.ERROR)
-                                Log.e(LOG_TAG,"speach failed");
-                        }
-
-                    }
-                } else {
-                    Log.e(LOG_TAG,"Initilization Failed!");
-                }
-            }
-        });
         stopGPS();
         stopSelf();
     }
