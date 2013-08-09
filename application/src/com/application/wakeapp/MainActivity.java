@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -67,6 +68,7 @@ public class MainActivity extends Activity {
     private int searchRadius;
     private int outsidethreshold;
     private Boolean usedatabase;
+    private ProgressDialog progressDialog = null;
     private LocationListener locationListener;   
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds
@@ -78,7 +80,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG," onCreate " + isServiceStarted);
-
+        
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
         outsidethreshold = Integer.parseInt(prefs.getString("outsidethreshold","500"));
         searchRadius = Integer.parseInt(prefs.getString("searchradius","5000"));
@@ -143,7 +145,7 @@ public class MainActivity extends Activity {
 			alert.show();
 		} else {
 		
-			new Background().execute();
+			executeBackgroundThread();
         
         	findGPSPosition();
 		}
@@ -241,6 +243,13 @@ public class MainActivity extends Activity {
             }
         });
 
+    }
+    private void executeBackgroundThread(){
+    	progressDialog = ProgressDialog.show(this,
+    			"Searching nearby stations",
+    			"Downloading stations coordinates...",
+    			true, false);
+    	new Background().execute();
     }
     private Boolean isGPSSettingsEnabled(){
     	Boolean isOn = Boolean.FALSE;
@@ -562,11 +571,7 @@ public class MainActivity extends Activity {
                     mAdapter.addAll(stationListNameOnly);
                     mAdapter.notifyDataSetChanged();
                     Log.d(LOG_TAG,"notifyDataSetChanged len: " + stationListNameOnly.size());
-                    Toast t = Toast.makeText(getApplicationContext(),
-                            "Station list updated",
-                            Toast.LENGTH_LONG);
-                    t.setGravity(Gravity.CENTER ,0, 0);
-                    t.show();
+                    progressDialog.dismiss();
                 }
             });
             return null;
@@ -588,7 +593,7 @@ public class MainActivity extends Activity {
             stopService(new Intent(MainActivity.this,
                     BackgroundService.class));
 
-            new Background().execute();
+            executeBackgroundThread();
         }
         isServiceStarted = Boolean.FALSE;
     }
