@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -12,12 +14,15 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -26,6 +31,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -42,8 +48,9 @@ public class MainActivity extends Activity {
 
     private Location finalDestination;
     private Location myLocation=null;
-    private SearchView mSearchView;
-    private ListView mListView;
+    //private SearchView mSearchView;
+    private AutoCompleteTextView mAutoComplete;
+    //private ListView mListView;
     private ArrayAdapter<String> mAdapter;
     private Button mButton;
     private TextView mTextView1;
@@ -97,7 +104,10 @@ public class MainActivity extends Activity {
             }
         });
 
-                        
+        ActionBar bar = getActionBar();
+        bar.setBackgroundDrawable(new ColorDrawable(Color.rgb(245, 163, 48)));
+
+        
         if ( checkDataBase()){
             Log.d(LOG_TAG,"Database exists");
             isThereAnDatabase = Boolean.TRUE;
@@ -145,8 +155,9 @@ public class MainActivity extends Activity {
         	findGPSPosition();
 		}
 
-        mSearchView = (SearchView) findViewById(R.id.searchView);
-        mListView   = (ListView) findViewById(R.id.listView);
+        //mSearchView = (SearchView) findViewById(R.id.searchView);
+		mAutoComplete = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView1);
+        //mListView   = (ListView) findViewById(R.id.listView);
         mButton     = (Button) findViewById(R.id.button);
         
         mTextView1   = (TextView) findViewById(R.id.textView);      
@@ -155,10 +166,13 @@ public class MainActivity extends Activity {
         mTextViewDistance = (TextView) findViewById(R.id.distance);
         mTextView4 = (TextView) findViewById(R.id.textView4);
         mTextViewSpeed = (TextView) findViewById(R.id.speed);
-                
-        mListView.setAdapter(mAdapter = new ArrayAdapter<String>(
-                            this,android.R.layout.test_list_item,
-                    stationListNameOnly));
+        
+        mTextView1.setTextColor(Color.rgb(113, 221, 234));
+        mTextViewStation.setTextColor(Color.WHITE);
+        mTextView3.setTextColor(Color.rgb(113, 221, 234));
+        mTextViewDistance.setTextColor(Color.WHITE);
+        mTextView4.setTextColor(Color.rgb(113, 221, 234));
+        mTextViewSpeed.setTextColor(Color.WHITE);
 
         mButton.setOnClickListener(new View.OnClickListener(){
 
@@ -181,11 +195,20 @@ public class MainActivity extends Activity {
                 Log.d(LOG_TAG, finalDestination.getLongitude() + " " + isServiceStarted);
             }
         });
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                stationName = ((TextView) view).getText().toString();
-                Double lat = 0.0, lng = 0.0;
+
+        mAdapter = 
+        		new ArrayAdapter<String> 
+        (this,android.R.layout.test_list_item,stationListNameOnly);
+        
+        mAutoComplete.setAdapter(mAdapter); 
+        mAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+			@Override
+		    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+		        String str = (String) adapterView.getItemAtPosition(position);
+		        Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
+		        stationName = str;
+		        Double lat = 0.0, lng = 0.0;
 
                 for (String item : stationList) {
                     if (item.startsWith(stationName)) {
@@ -198,47 +221,52 @@ public class MainActivity extends Activity {
                 finalDestination.setLongitude(lng);
 
                 distance = myLocation.distanceTo(finalDestination);
-
-                mListView.setVisibility(View.INVISIBLE);
-                mButton.setVisibility(View.VISIBLE);
-                               
-                setTextView(View.VISIBLE);
-
-                hideSoftKeyboard();
-            }
-
-            protected void hideSoftKeyboard() {
-                InputMethodManager imm = (InputMethodManager)
-                        getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-            }
+		        
+		        mButton.setVisibility(View.VISIBLE);
+		        setTextView(View.VISIBLE);
+		        hideSoftKeyboard();
+		    }
+        	
         });
-        mListView.setTextFilterEnabled(true);
-        mSearchView.setSubmitButtonEnabled(false);
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+        
+        mAutoComplete.addTextChangedListener(new TextWatcher(){
 
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
-            }
+			@Override
+			public void afterTextChanged(Editable arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (TextUtils.isEmpty(newText)) {
-                    mListView.clearTextFilter();
-                    mListView.setVisibility(View.INVISIBLE);
-                    mButton.setVisibility(View.INVISIBLE);                    
-                    setTextView(View.INVISIBLE);
-                } else {
-                    mListView.setFilterText(newText.toString());
-                    mListView.setVisibility(View.VISIBLE);
-                    setTextView(View.INVISIBLE);
-                }
-                return true;
-            }
+			@Override
+			public void beforeTextChanged(CharSequence arg0, int arg1,
+					int arg2, int arg3) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onTextChanged(CharSequence charsequence, int arg1, int arg2,
+					int arg3) {
+				String str = charsequence.toString();
+				Toast.makeText(getApplicationContext(),str, Toast.LENGTH_SHORT).show();
+				if (TextUtils.isEmpty(str)) {
+					mButton.setVisibility(View.INVISIBLE);
+					setTextView(View.INVISIBLE);
+				} else {
+					setTextView(View.INVISIBLE);
+				}
+				
+				
+			}
+        	
         });
-
     }
+    private void hideSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager)
+                getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
+
     private void executeBackgroundThread(){
     	progressDialog = ProgressDialog.show(this,
     			"Searching nearby stations",
@@ -605,8 +633,8 @@ public class MainActivity extends Activity {
     	// If we get an intent from the AlarmActivity that means
     	// we should exit application and set it to on-first-start-mode
         if ( msg != null && msg.equals("PingByAlarm")){
-        	mSearchView.setIconified(true);
-            mListView.setVisibility(View.INVISIBLE);
+        	//mSearchView.setIconified(true);
+            //mListView.setVisibility(View.INVISIBLE);
             mButton.setVisibility(View.INVISIBLE);
             //mTextView.setVisibility(View.INVISIBLE);
             setTextView(View.INVISIBLE);
