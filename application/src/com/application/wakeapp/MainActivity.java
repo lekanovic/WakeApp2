@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
     private TextView mTextViewDistance;
     private TextView mTextView4;
     private TextView mTextViewSpeed;
+    private TextView mTextInfo;
     private ArrayList<String> stationList;
     private ArrayList<String> stationListNameOnly;
     private LocationManager locationManager;
@@ -158,6 +159,7 @@ public class MainActivity extends Activity {
         //mListView   = (ListView) findViewById(R.id.listView);
         mButton     = (Button) findViewById(R.id.button);
         
+        mTextInfo    = (TextView) findViewById(R.id.textView1); 
         mTextView1   = (TextView) findViewById(R.id.textView);      
         mTextViewStation = (TextView) findViewById(R.id.station);
         mTextView3 = (TextView) findViewById(R.id.textView2);
@@ -165,6 +167,7 @@ public class MainActivity extends Activity {
         mTextView4 = (TextView) findViewById(R.id.textView4);
         mTextViewSpeed = (TextView) findViewById(R.id.speed);
         
+        mTextInfo.setTextColor(Color.rgb(113, 221, 234));
         mTextView1.setTextColor(Color.rgb(113, 221, 234));
         mTextViewStation.setTextColor(Color.WHITE);
         mTextView3.setTextColor(Color.rgb(113, 221, 234));
