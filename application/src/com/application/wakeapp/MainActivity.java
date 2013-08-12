@@ -104,6 +104,8 @@ public class MainActivity extends Activity {
             }
         });
 
+        getWindow().setBackgroundDrawableResource(R.drawable.background);
+        
         ActionBar bar = getActionBar();
         bar.setBackgroundDrawable(new ColorDrawable(Color.rgb(245, 163, 48)));
 

@@ -50,6 +50,8 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
         alarmURI = Uri.parse(prefs.getString("ringtone","default ringtone"));
         
+        getWindow().setBackgroundDrawableResource(R.drawable.background);
+        
         // If we do not have any default ringtones in preferencemanager
         // we have to add DEFAULT_RINGTONE otherwise we crash.
         if ( alarmURI.toString().equals("default ringtone"))
