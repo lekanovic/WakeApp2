@@ -35,6 +35,7 @@ public class BackgroundService extends Service {
     private static final String LOG_TAG = "WakeApp";
     private Boolean hasRestartedGPS;
     private String destination_message;
+    private String destinationName;
     
     @SuppressWarnings("deprecation")
 	@Override
@@ -56,7 +57,8 @@ public class BackgroundService extends Service {
         finalDestination = new Location("Destination");
         finalDestination.setLongitude(intent.getExtras().getDouble("lng"));
         finalDestination.setLatitude(intent.getExtras().getDouble("lat"));
-        
+        destinationName = intent.getExtras().getString("destination");
+                
         hasRestartedGPS=Boolean.FALSE;
         
         destination_message = getResources().getString(R.string.arrive_message);
@@ -132,7 +134,10 @@ public class BackgroundService extends Service {
     	Log.d(LOG_TAG,"fireAlarm");
     	Intent intent = new Intent(BackgroundService.this,AlarmReceiverActivity.class);
     	intent.setAction(Intent.ACTION_MAIN);
-    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);    	
+    	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    	
+    	intent.putExtra(getResources().getString(R.string.destination_name), destinationName);
+    	
     	startActivity(intent);
         stopGPS();
         stopSelf();

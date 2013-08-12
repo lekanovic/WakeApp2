@@ -182,7 +182,8 @@ public class MainActivity extends Activity {
                 Intent newIntent = new Intent(MainActivity.this,BackgroundService.class);
                 
                 stopGPS();
-
+                
+                newIntent.putExtra(getResources().getString(R.string.destination_name),stationName);
                 newIntent.putExtra("lng",finalDestination.getLongitude());
                 newIntent.putExtra("lat",finalDestination.getLatitude());
                 startService(newIntent);

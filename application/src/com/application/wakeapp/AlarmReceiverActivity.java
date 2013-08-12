@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -25,6 +26,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 @SuppressLint("NewApi")
 public class AlarmReceiverActivity extends Activity implements OnInitListener{
@@ -39,6 +41,9 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
 	private Uri alarmURI;
 	private static final String LOG_TAG = "WakeApp";
 	private UtteranceProgressListener progressListener;
+	private String destinationName;
+	private TextView mTextViewTitle;
+	private TextView mTextViewDestination;
 	private HashMap<String, String> params = new HashMap<String, String>();
 	
 	@Override
@@ -52,6 +57,16 @@ public class AlarmReceiverActivity extends Activity implements OnInitListener{
         
         getWindow().setBackgroundDrawableResource(R.drawable.background);
         
+        mTextViewTitle = (TextView) findViewById(R.id.textView1);
+        mTextViewDestination = (TextView) findViewById(R.id.textView2);
+        
+        String stationName = getResources().getString(R.string.destination_name);
+        destinationName = this.getIntent().getStringExtra(stationName);
+ 
+        mTextViewTitle.setTextColor(Color.rgb(113, 221, 234));
+        mTextViewDestination.setTextColor(Color.WHITE);        
+        mTextViewDestination.setText(destinationName);
+                
         // If we do not have any default ringtones in preferencemanager
         // we have to add DEFAULT_RINGTONE otherwise we crash.
         if ( alarmURI.toString().equals("default ringtone"))
