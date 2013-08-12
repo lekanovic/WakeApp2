@@ -208,7 +208,6 @@ public class MainActivity extends Activity {
 			@Override
 		    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 		        String str = (String) adapterView.getItemAtPosition(position);
-		        Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
 		        stationName = str;
 		        Double lat = 0.0, lng = 0.0;
 
@@ -250,7 +249,6 @@ public class MainActivity extends Activity {
 			public void onTextChanged(CharSequence charsequence, int arg1, int arg2,
 					int arg3) {
 				String str = charsequence.toString();
-				Toast.makeText(getApplicationContext(),str, Toast.LENGTH_SHORT).show();
 				if (TextUtils.isEmpty(str)) {
 					mButton.setVisibility(View.INVISIBLE);
 					setTextView(View.INVISIBLE);
