@@ -30,11 +30,25 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
+//import android.widget.Filter.FilterResults;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class MainActivity extends Activity {
@@ -74,6 +88,7 @@ public class MainActivity extends Activity {
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
     private static final String LOG_TAG = "WakeApp";
     private static final String DATABASE_NAME = "stationNames";
+    private static final String API_KEY = "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,7 +157,7 @@ public class MainActivity extends Activity {
 			alert.show();
 		} else {
 		
-			executeBackgroundThread();
+			//executeBackgroundThread();
         
         	findGPSPosition();
 		}
@@ -190,12 +205,13 @@ public class MainActivity extends Activity {
                 Log.d(LOG_TAG, finalDestination.getLongitude() + " " + isServiceStarted);
             }
         });
-
+/*
         mAdapter = 
         		new ArrayAdapter<String> 
         (this,android.R.layout.test_list_item,stationListNameOnly);
-        
-        mAutoComplete.setAdapter(mAdapter); 
+		mAutoComplete.setAdapter(mAdapter);
+        */
+        mAutoComplete.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));         
         mAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
 			@Override
@@ -254,6 +270,170 @@ public class MainActivity extends Activity {
         	
         });
     }
+	private ArrayList<String> autocomplete(String input) {
+	    ArrayList<String> resultList = null;
+		String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
+		String TYPE_AUTOCOMPLETE = "/autocomplete";
+		String OUT_JSON = "/json";
+		
+		
+	    HttpURLConnection conn = null;
+	    StringBuilder jsonResults = new StringBuilder();
+	    try {
+	        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
+	        sb.append("?sensor=false&key=" + API_KEY);
+	        //sb.append("&components=country:SE");
+	        sb.append("&input=" + URLEncoder.encode(input, "utf8"));
+	        
+	        URL url = new URL(sb.toString());
+	        conn = (HttpURLConnection) url.openConnection();
+	        InputStreamReader in = new InputStreamReader(conn.getInputStream());
+	        
+	        Log.d(LOG_TAG,sb.toString());
+	        // Load the results into a StringBuilder
+	        int read;
+	        char[] buff = new char[1024];
+	        while ((read = in.read(buff)) != -1) {
+	            jsonResults.append(buff, 0, read);
+	        }
+	    } catch (MalformedURLException e) {
+	        Log.e(LOG_TAG, "Error processing Places API URL", e);
+	        return resultList;
+	    } catch (IOException e) {
+	        Log.e(LOG_TAG, "Error connecting to Places API", e);
+	        return resultList;
+	    } finally {
+	        if (conn != null) {
+	            conn.disconnect();
+	        }
+	    }
+
+	    try {
+	        // Create a JSON object hierarchy from the results
+	        JSONObject jsonObj = new JSONObject(jsonResults.toString());
+	        JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
+	        
+	        // Extract the Place descriptions from the results
+	        resultList = new ArrayList<String>(predsJsonArray.length());
+	        
+	        for (int i = 0; i < predsJsonArray.length(); i++) {
+	        	
+	        	String s = predsJsonArray.getJSONObject(i).getString("types");
+	        	Log.d(LOG_TAG,"City: " + predsJsonArray.getJSONObject(i).getString("description") + " types " + s);
+	        	
+	        	if ( s.contains("train_station")|| s.contains("bus_station")||
+	        		s.contains("subway_station")||s.contains("transit_station")||
+	        		s.contains("locality")){
+	        		//https://maps.googleapis.com/maps/api/place/details/json?reference=CjQhAAAAO2dWsIL5-IRUi1cN0V0DLCUPoVJRNR_9xGIv5HMXayEvAba0uvh9EbP3iYDIPOLfEhBCJSVOqPXTkuANitD_1pAJGhQivcKS6O1-nbRRvtwPr1gmMmJ6ew&sensor=true&key=AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA
+	        		Log.d(LOG_TAG,"Vi har hittat en station");
+	        		String reference = predsJsonArray.getJSONObject(i).getString("reference");
+	        		String coordinates = getCoordinates(reference);
+	        		String stationName = predsJsonArray.getJSONObject(i).getString("description");
+	        		Log.d(LOG_TAG,stationName);
+	        		Log.d(LOG_TAG,"coordinates: " + coordinates );
+	        		
+	        		resultList.add(stationName + " " + coordinates);
+	        	}
+        		
+	        }
+	    } catch (JSONException e) {
+	        Log.e(LOG_TAG, "Cannot process JSON results", e);
+	    }
+	    
+	    return resultList;
+	}
+	private String getCoordinates(String ref){
+		String returnValue="";
+	    HttpURLConnection conn = null;
+	    StringBuilder jsonResults = new StringBuilder();
+		String base = "https://maps.googleapis.com/maps/api/place/details/json?";
+		StringBuilder sb = new StringBuilder();
+		sb.append(base);
+		sb.append("reference=" + ref + "&");	
+		sb.append("sensor=true&key=" + API_KEY);
+				        
+		try {
+			URL url = new URL(sb.toString());
+			
+	        conn = (HttpURLConnection) url.openConnection();
+	        InputStreamReader in = new InputStreamReader(conn.getInputStream());
+	        
+	        Log.d(LOG_TAG,"url: " + sb.toString());		
+	        // Load the results into a StringBuilder
+	        int read;
+	        char[] buff = new char[1024];
+	        while ((read = in.read(buff)) != -1) {
+	            jsonResults.append(buff, 0, read);
+	        }
+	        JSONObject jsonObj;
+			jsonObj = new JSONObject(jsonResults.toString());
+			JSONObject jsonObject = jsonObj.getJSONObject("result")
+										   .getJSONObject("geometry")
+										   .getJSONObject("location");
+
+			
+			returnValue = jsonObject.getString("lat") + " " + jsonObject.getString("lng");
+			Log.d(LOG_TAG,"coords: " + returnValue);
+			
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		   
+        
+		return returnValue;
+
+	}
+	private class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
+	    private ArrayList<String> resultList;
+	    
+	    public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
+	        super(context, textViewResourceId);
+	    }
+	    
+	    @Override
+	    public int getCount() {
+	        return resultList.size();
+	    }
+
+	    @Override
+	    public String getItem(int index) {
+	        return resultList.get(index);
+	    }
+	    @Override
+	    public Filter getFilter() {
+	        Filter filter = new Filter() {
+	            @Override
+	            protected FilterResults performFiltering(CharSequence constraint) {
+	                FilterResults filterResults = new FilterResults();
+	                if (constraint != null) {
+	                    // Retrieve the autocomplete results.
+	                    resultList = autocomplete(constraint.toString());
+	                    
+	                    // Assign the data to the FilterResults
+	                    filterResults.values = resultList;
+	                    filterResults.count = resultList.size();
+	                }
+	                return filterResults;
+	            }
+
+	            @Override
+	            protected void publishResults(CharSequence constraint, FilterResults results) {
+	                if (results != null && results.count > 0) {
+	                    notifyDataSetChanged();
+	                }
+	                else {
+	                    notifyDataSetInvalidated();
+	                }
+	            }};
+	        return filter;
+	    }	   
+	}
     private void hideSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager)
                 getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -261,6 +441,7 @@ public class MainActivity extends Activity {
     }
 
     private void executeBackgroundThread(){
+
     	progressDialog = ProgressDialog.show(this,
     			"Searching nearby stations",
     			"Downloading stations coordinates...",
@@ -609,7 +790,7 @@ public class MainActivity extends Activity {
             stopService(new Intent(MainActivity.this,
                     BackgroundService.class));
 
-            executeBackgroundThread();
+            //executeBackgroundThread();
         }
         isServiceStarted = Boolean.FALSE;
     }
