@@ -3,6 +3,7 @@ package com.application.wakeapp;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -14,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -66,20 +68,23 @@ public class MainActivity extends Activity {
     @SuppressWarnings("unused")
 	private Float distance;
     private Boolean isGPSEnabled = Boolean.FALSE;
-    
+    private SharedPreferences prefs;
     private LocationListener locationListener;   
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
     private static final String LOG_TAG = "WakeApp";
     private static final String API_KEY = "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA";
-    private String countryCode = "&components=country:";
+    private String countryCode;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG," onCreate " + isServiceStarted);
         
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        countryCode = prefs.getString("country","SE");
+
         getWindow().setBackgroundDrawableResource(R.drawable.background);
         
         finalDestination = new Location("Destination");
@@ -233,11 +238,8 @@ public class MainActivity extends Activity {
 	    StringBuilder jsonResults = new StringBuilder();
 	    try {
 	        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
-	        sb.append("?sensor=false&key=" + API_KEY);
-	        
-	        if (!countryCode.isEmpty())
-	        	sb.append("&components=country:" + countryCode);
-	        
+	        sb.append("?sensor=false&key=" + API_KEY);	        
+        	sb.append("&components=country:" + countryCode);	        
 	        sb.append("&input=" + URLEncoder.encode(input, "utf8"));
 	        
 	        Log.d(LOG_TAG,"URL: " + sb.toString());
@@ -618,7 +620,15 @@ public class MainActivity extends Activity {
     }
     class CountryThread extends AsyncTask<Void,Void,Void>{
     	protected Void doInBackground(Void...params){
-    		countryCode = getCountryCode(55.71,13.23);
+    		String country = getCountryCode(55.71,13.23);            
+    		SharedPreferences.Editor editor = prefs.edit();
+    		
+    		if (!country.isEmpty() && !country.equals(countryCode)){
+    			countryCode = country;
+    			editor.putString("country",country);    			
+    			editor.commit();
+    		}
+
 			return null;
     	}
     }
