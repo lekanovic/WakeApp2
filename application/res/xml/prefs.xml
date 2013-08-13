@@ -9,26 +9,6 @@
         android:inputType="numberDecimal"
         android:defaultValue="500"
             />
-    <EditTextPreference
-            android:key="searchradius"
-            android:title="Radius for station search"
-            android:summary="Using large value here will generate long list with nearby stations in meters"
-            android:inputType="numberDecimal"
-            android:defaultValue="15000"
-           />
-    <EditTextPreference
-        android:key="outsidethreshold"
-        android:title="Threshold"
-        android:inputType="numberDecimal"
-        android:summary="Threshold is used to decide if we have been on this location before.Since position form network is not accurate we need to use threshold value in meters"
-        android:defaultValue="500"
-            />
-    <SwitchPreference
-        android:key="usedatabase"
-        android:title="Use SQL cache"
-        android:summary="Warning! By not using cache there will be lot of network traffic generated. Also it will be much slower updating station list"
-        android:defaultValue="true"
-        />
     <RingtonePreference
         android:key="ringtone"
         android:title="Select alarm"
