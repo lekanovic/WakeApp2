@@ -3,7 +3,6 @@ package com.application.wakeapp;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -15,8 +14,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -33,9 +30,6 @@ import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
-//import android.widget.Filter.FilterResults;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -53,12 +47,11 @@ import org.json.JSONObject;
 
 public class MainActivity extends Activity {
 
+	private ArrayList<String> coordinatesAndNames;
     private Location finalDestination;
     private Location myLocation=null;
     //private SearchView mSearchView;
     private AutoCompleteTextView mAutoComplete;
-    //private ListView mListView;
-    private ArrayAdapter<String> mAdapter;
     private Button mButton;
     private TextView mTextView1;
     private TextView mTextViewStation;
@@ -67,64 +60,30 @@ public class MainActivity extends Activity {
     private TextView mTextView4;
     private TextView mTextViewSpeed;
     private TextView mTextInfo;
-    private ArrayList<String> stationList;
-    private ArrayList<String> stationListNameOnly;
     private LocationManager locationManager;
     private Boolean isServiceStarted = Boolean.FALSE;
     private String stationName="none";
     @SuppressWarnings("unused")
 	private Float distance;
-    private DataBaseHandler mDataBaseHandler;
-    private Boolean isThereAnDatabase = Boolean.FALSE;
     private Boolean isGPSEnabled = Boolean.FALSE;
-    private SharedPreferences prefs;
-    private int searchRadius;
-    private int outsidethreshold;
-    private Boolean usedatabase;
-    private ProgressDialog progressDialog = null;
+    
     private LocationListener locationListener;   
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
     private static final String LOG_TAG = "WakeApp";
-    private static final String DATABASE_NAME = "stationNames";
     private static final String API_KEY = "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA";
+    private String countryCode = "&components=country:";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG," onCreate " + isServiceStarted);
         
-        prefs =  PreferenceManager.getDefaultSharedPreferences(this);
-        outsidethreshold = Integer.parseInt(prefs.getString("outsidethreshold","500"));
-        searchRadius = Integer.parseInt(prefs.getString("searchradius","5000"));
-
-        usedatabase = prefs.getBoolean("usedatabase",Boolean.TRUE);
-        prefs.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-                Log.d(LOG_TAG,"onSharedPreferenceChanged: " + s);
-                // If the user have changed searchradius we need to discard the database
-                // and re-fetch the station list from server.
-                if ( s.equals("searchradius") ){
-                    getApplicationContext().deleteDatabase(mDataBaseHandler.getDatabaseName());
-                }
-
-            }
-        });
-
         getWindow().setBackgroundDrawableResource(R.drawable.background);
         
-        if ( checkDataBase()){
-            Log.d(LOG_TAG,"Database exists");
-            isThereAnDatabase = Boolean.TRUE;
-        }
-
         finalDestination = new Location("Destination");
-        stationList = new ArrayList<String>();
-        stationListNameOnly = new ArrayList<String>();
-        mDataBaseHandler = new DataBaseHandler(MainActivity.this);
-
+        
         // User should enable GPS
         if (!isGPSSettingsEnabled()){
         	Log.d(LOG_TAG,"GPS sensor is not enabled");
@@ -156,15 +115,11 @@ public class MainActivity extends Activity {
 			AlertDialog alert = builder.create();
 			alert.show();
 		} else {
-		
-			//executeBackgroundThread();
-        
+		        
         	findGPSPosition();
 		}
 
-        //mSearchView = (SearchView) findViewById(R.id.searchView);
 		mAutoComplete = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView1);
-        //mListView   = (ListView) findViewById(R.id.listView);
         mButton     = (Button) findViewById(R.id.button);
         
         mTextInfo    = (TextView) findViewById(R.id.textView1); 
@@ -205,28 +160,22 @@ public class MainActivity extends Activity {
                 Log.d(LOG_TAG, finalDestination.getLongitude() + " " + isServiceStarted);
             }
         });
-/*
-        mAdapter = 
-        		new ArrayAdapter<String> 
-        (this,android.R.layout.test_list_item,stationListNameOnly);
-		mAutoComplete.setAdapter(mAdapter);
-        */
+        mAutoComplete.setThreshold(2);
         mAutoComplete.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));         
         mAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
 			@Override
 		    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-		        String str = (String) adapterView.getItemAtPosition(position);
-		        stationName = str;
+				stationName = (String) adapterView.getItemAtPosition(position);
 		        Double lat = 0.0, lng = 0.0;
-
-                for (String item : stationList) {
+		        
+                for (String item : coordinatesAndNames) {
                     if (item.startsWith(stationName)) {
                         lat = getLatitude(item);
                         lng = getLongitude(item);
                         break;
                     }
-                }
+                }                
                 finalDestination.setLatitude(lat);
                 finalDestination.setLongitude(lng);
 
@@ -269,27 +218,33 @@ public class MainActivity extends Activity {
 			}
         	
         });
+        new CountryThread().execute();
     }
 	private ArrayList<String> autocomplete(String input) {
 	    ArrayList<String> resultList = null;
+        coordinatesAndNames = new ArrayList<String>();
 		String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 		String TYPE_AUTOCOMPLETE = "/autocomplete";
 		String OUT_JSON = "/json";
 		
+		Log.d(LOG_TAG,"autocomplete");
 		
 	    HttpURLConnection conn = null;
 	    StringBuilder jsonResults = new StringBuilder();
 	    try {
 	        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
 	        sb.append("?sensor=false&key=" + API_KEY);
-	        //sb.append("&components=country:SE");
+	        
+	        if (!countryCode.isEmpty())
+	        	sb.append("&components=country:" + countryCode);
+	        
 	        sb.append("&input=" + URLEncoder.encode(input, "utf8"));
 	        
+	        Log.d(LOG_TAG,"URL: " + sb.toString());
 	        URL url = new URL(sb.toString());
 	        conn = (HttpURLConnection) url.openConnection();
 	        InputStreamReader in = new InputStreamReader(conn.getInputStream());
 	        
-	        Log.d(LOG_TAG,sb.toString());
 	        // Load the results into a StringBuilder
 	        int read;
 	        char[] buff = new char[1024];
@@ -325,14 +280,12 @@ public class MainActivity extends Activity {
 	        		s.contains("subway_station")||s.contains("transit_station")||
 	        		s.contains("locality")){
 	        		//https://maps.googleapis.com/maps/api/place/details/json?reference=CjQhAAAAO2dWsIL5-IRUi1cN0V0DLCUPoVJRNR_9xGIv5HMXayEvAba0uvh9EbP3iYDIPOLfEhBCJSVOqPXTkuANitD_1pAJGhQivcKS6O1-nbRRvtwPr1gmMmJ6ew&sensor=true&key=AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA
-	        		Log.d(LOG_TAG,"Vi har hittat en station");
 	        		String reference = predsJsonArray.getJSONObject(i).getString("reference");
 	        		String coordinates = getCoordinates(reference);
 	        		String stationName = predsJsonArray.getJSONObject(i).getString("description");
-	        		Log.d(LOG_TAG,stationName);
-	        		Log.d(LOG_TAG,"coordinates: " + coordinates );
 	        		
-	        		resultList.add(stationName + " " + coordinates);
+	        		resultList.add(stationName);
+	        		coordinatesAndNames.add(stationName + " " + coordinates);
 	        	}
         		
 	        }
@@ -357,8 +310,7 @@ public class MainActivity extends Activity {
 			
 	        conn = (HttpURLConnection) url.openConnection();
 	        InputStreamReader in = new InputStreamReader(conn.getInputStream());
-	        
-	        Log.d(LOG_TAG,"url: " + sb.toString());		
+	        	
 	        // Load the results into a StringBuilder
 	        int read;
 	        char[] buff = new char[1024];
@@ -373,7 +325,6 @@ public class MainActivity extends Activity {
 
 			
 			returnValue = jsonObject.getString("lat") + " " + jsonObject.getString("lng");
-			Log.d(LOG_TAG,"coords: " + returnValue);
 			
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -440,14 +391,6 @@ public class MainActivity extends Activity {
         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 
-    private void executeBackgroundThread(){
-
-    	progressDialog = ProgressDialog.show(this,
-    			"Searching nearby stations",
-    			"Downloading stations coordinates...",
-    			true, false);
-    	new Background().execute();
-    }
     private Boolean isGPSSettingsEnabled(){
     	Boolean isOn = Boolean.FALSE;
 
@@ -624,11 +567,6 @@ public class MainActivity extends Activity {
         isGPSEnabled = Boolean.TRUE;
 
     }
-    // Check if database exits
-    private boolean checkDataBase() {
-        File dbFile=getApplicationContext().getDatabasePath(DATABASE_NAME);
-        return dbFile.exists();
-    }
     public void stopGPS(){
     	//if ( locationManager != null && locationListener != null)
     	//	locationManager.removeUpdates(locationListener);
@@ -636,143 +574,53 @@ public class MainActivity extends Activity {
     	isGPSEnabled = Boolean.FALSE;
     	locationManager.removeUpdates(locationListener);
     }
-    
-    class Background extends AsyncTask<String, Integer, String> {
+    public String getCountryCode(Double lat, Double lng){
+    	//http://api.geonames.org/countryCode?lat=47.03&lng=10.2&username=demo
+    	
+    	StringBuilder jsonResults = new StringBuilder();
+    	HttpURLConnection conn;
+    	String country="";
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("http://ws.geonames.org/countryCode?type=json&");
+    	sb.append("lat=" + lat + "&");
+    	sb.append("lng=" + lng);
 
-        private void addPreviousLocation() {
-            Log.d(LOG_TAG,"addPreviousLocation");
-            Location l = new Location("previousSearch");
-            l.setLatitude(myLocation.getLatitude());
-            l.setLongitude(myLocation.getLongitude());
+    	Log.d(LOG_TAG,"URL; " + sb.toString());
+    	try {
+	    	URL url = new URL(sb.toString());
+	    	
+	        conn = (HttpURLConnection) url.openConnection();
+	        InputStreamReader in = new InputStreamReader(conn.getInputStream());
+	        
+	        int read;
+	        char[] buff = new char[1024];
+	        while ((read = in.read(buff)) != -1) {
+	            jsonResults.append(buff, 0, read);
+	        }
+	        JSONObject jsonObj;
+			jsonObj = new JSONObject(jsonResults.toString());
+			//JSONObject jsonObject = jsonObj.getJSONObject("countryCode");
+			country = jsonObj.getString("countryCode");
+			Log.d(LOG_TAG,"Countrycode: " + country);						 
 
-            mDataBaseHandler.addLocation(l);
-        }
-        private void populateDatabase(){
-            Log.d(LOG_TAG,"populateDatabase");
-            Stations stations =
-                    new Stations(myLocation.getLongitude(),
-                            myLocation.getLatitude(),
-                            searchRadius);
 
-            stationList = stations.getAllStations(Boolean.FALSE);
-
-            stationListNameOnly = removeCoordinates(stationList);
-
-            // Very ugly way to parse the location string that
-            // looks like this
-            // "Lund cental station 53.213 15.235"
-            // "Aroboga 56.542 17.34456"
-            // when we have extracted name and coordinates we
-            // add it to the database
-            for (String item : stationList){
-                StringBuilder sb = new StringBuilder();
-                String[] tmp = item.split(" ");
-                int items = tmp.length;
-                Double lat = Double.parseDouble(tmp[(items-2)]);
-                Double lng = Double.parseDouble(tmp[(items-1)]);
-                for ( int i=0;i<items-2;i++){
-                    sb.append(tmp[i] + " ");
-                }
-                String name = sb.toString();
-
-                Location l = new Location(name);
-                l.setLatitude(lat);
-                l.setLongitude(lng);
-                
-                mDataBaseHandler.addLocation(l);
-            }
-        }
-        private Boolean haveWeBeenHereBefore(){
-            Boolean ret = Boolean.FALSE;
-            Float distanceTo=0f;
-            ArrayList<Location> locations = mDataBaseHandler.getOnlyPreviousSearchesLocation();
-
-            for (Location l : locations){
-                    if ( myLocation.distanceTo(l) < outsidethreshold){
-                        distanceTo = myLocation.distanceTo(l);
-                        ret = Boolean.TRUE;
-                        break;
-                    }
-
-            }
-            Log.d(LOG_TAG,"haveWeBeenHereBefore " + ret + " distance: "
-                    + distanceTo + "meters");
-            return ret;
-        }
-        @SuppressWarnings("unused")
-		private void fetchFromServer(){
-            Log.d(LOG_TAG,"fetchFromServer");
-            Stations stations =
-                    new Stations(myLocation.getLongitude(),
-                            myLocation.getLatitude(),
-                            searchRadius);
-
-            stationList = stations.getAllStations(Boolean.FALSE);
-
-            stationListNameOnly = removeCoordinates(stationList);
-        }
-        private void fetchFromCache(){
-            Log.d(LOG_TAG,"fetchFromCache");
-            stationList = mDataBaseHandler.getAllButPreviousString();
-            stationListNameOnly = removeCoordinates(stationList);
-        }
-
-        private ArrayList<String> removeCoordinates(ArrayList<String> l){
-            ArrayList<String> newList = new ArrayList<String>();
-
-            for ( int i=0;i<l.size();i++){
-                StringBuilder sb = new StringBuilder();
-                String tmp = l.get(i);
-                String[] temp = tmp.split(" ");
-                for ( int j=0;j<temp.length-2;j++){
-                    sb.append(temp[j] + " ");
-                }
-                newList.add(sb.toString());
-            }
-
-            return  newList;
-        }
-        protected String doInBackground(String... urls) {
-            long startTime = System.currentTimeMillis();
-            do{//We need to get an position
-                try {
-                    Thread.sleep(1000);
-                    Log.d(LOG_TAG,"looking for GPS");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }while(myLocation == null);
-            Log.d(LOG_TAG,"Time to get GPS; " +
-                    (System.currentTimeMillis() - startTime)/1000 + " sec");
-
-            // First start-up we don't have an database.
-            // Download station list from server and
-            // populate database.
-            // else we have the data locally so no need to
-            // fetch from server.
-            if ( !isThereAnDatabase || !haveWeBeenHereBefore() || !usedatabase)
-                populateDatabase();
-            else
-                fetchFromCache();
-
-            if (!haveWeBeenHereBefore())
-            	addPreviousLocation();
-
-            Log.d(LOG_TAG,"Pos found: lat: " +
-                    myLocation.getLatitude() + " lng: " +
-                    myLocation.getLongitude());
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mAdapter.addAll(stationListNameOnly);
-                    mAdapter.notifyDataSetChanged();
-                    Log.d(LOG_TAG,"notifyDataSetChanged len: " + stationListNameOnly.size());
-                    progressDialog.dismiss();
-                }
-            });
-            return null;
-        }
+    	} catch (MalformedURLException e) {
+    		Log.d(LOG_TAG,"MalformedURLException");
+	    } catch (IOException e) {
+	    	Log.d(LOG_TAG,"IOException");
+	    } catch (JSONException e) {
+			// TODO Auto-generated catch block
+	    	Log.d(LOG_TAG,"JSONException");
+			e.printStackTrace();
+		} 
+    	
+    	return country;
+    }
+    class CountryThread extends AsyncTask<Void,Void,Void>{
+    	protected Void doInBackground(Void...params){
+    		countryCode = getCountryCode(55.71,13.23);
+			return null;
+    	}
     }
     @Override
     protected void onResume() {
@@ -790,7 +638,6 @@ public class MainActivity extends Activity {
             stopService(new Intent(MainActivity.this,
                     BackgroundService.class));
 
-            //executeBackgroundThread();
         }
         isServiceStarted = Boolean.FALSE;
     }
