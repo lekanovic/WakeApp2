@@ -31,7 +31,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -276,7 +275,7 @@ public class MainActivity extends Activity {
         for (Location l: locations) {
         	arrayAdapter.add(l.getProvider());
         }
-
+        
         builderSingle.setNegativeButton("cancel",
                 new DialogInterface.OnClickListener() {
 
@@ -285,7 +284,7 @@ public class MainActivity extends Activity {
                         dialog.dismiss();
                     }
                 });
-
+        
         builderSingle.setAdapter(arrayAdapter,
                 new DialogInterface.OnClickListener() {
 
@@ -294,23 +293,46 @@ public class MainActivity extends Activity {
                         final String strName = arrayAdapter.getItem(which);
                         AlertDialog.Builder builderInner = new AlertDialog.Builder(
                         		MainActivity.this);
+                        
+                        //finalDestination = mDataBaseHandler.getLocationFromName(strName);
+                        //dialog.dismiss();
+                        //startBackgroundService();
+                        
                         builderInner.setMessage(strName);
-                        builderInner.setTitle("Set end destination?");
+                        builderInner.setTitle("Set end destination?\nDelete end destination?");
                         builderInner.setPositiveButton("GO",
                                 new DialogInterface.OnClickListener() {
-
                                     @Override
                                     public void onClick(
                                             DialogInterface dialog,
                                             int which) {
-                                    	// User has choosen an new final destination
+                                    	// User has chosen an new final destination
                                         finalDestination = mDataBaseHandler.getLocationFromName(strName);
                                         dialog.dismiss();
                                         startBackgroundService();
                                         
                                     }
                                 });
+                        
+                        builderInner.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Log.d(LOG_TAG,"onClick no");
+                                mDataBaseHandler.deleteLocation(strName);
+                            }
+                        });
+                        /*
+                        builderInner.setNeutralButton("Cancel", new DialogInterface.OnClickListener(){
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								
+								dialog.dismiss();
+							}
+                        	
+                        });*/
                         builderInner.show();
+                                                
                     }
                 });
         builderSingle.show();
