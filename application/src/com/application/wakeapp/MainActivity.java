@@ -31,6 +31,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,9 +53,9 @@ public class MainActivity extends Activity {
 	private ArrayList<String> coordinatesAndNames;
     private Location finalDestination;
     private Location myLocation=null;
-    //private SearchView mSearchView;
     private AutoCompleteTextView mAutoComplete;
     private Button mButton;
+    private Button mButtonPrevious;
     private TextView mTextView1;
     private TextView mTextViewStation;
     private TextView mTextView3;
@@ -64,7 +65,6 @@ public class MainActivity extends Activity {
     private TextView mTextInfo;
     private LocationManager locationManager;
     private Boolean isServiceStarted = Boolean.FALSE;
-    private String stationName="none";
     @SuppressWarnings("unused")
 	private Float distance;
     private Boolean isGPSEnabled = Boolean.FALSE;
@@ -76,6 +76,8 @@ public class MainActivity extends Activity {
     private static final String LOG_TAG = "WakeApp";
     private static final String API_KEY = "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA";
     private String countryCode;
+    private DataBaseHandler mDataBaseHandler;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,8 +126,11 @@ public class MainActivity extends Activity {
         	findGPSPosition();
 		}
 
+		mDataBaseHandler = new DataBaseHandler(MainActivity.this);
+				
 		mAutoComplete = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView1);
         mButton     = (Button) findViewById(R.id.button);
+        mButtonPrevious = (Button) findViewById(R.id.button1);
         
         mTextInfo    = (TextView) findViewById(R.id.textView1); 
         mTextView1   = (TextView) findViewById(R.id.textView);      
@@ -147,23 +152,18 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View view) {
-                Intent newIntent = new Intent(MainActivity.this,BackgroundService.class);
-                
-                stopGPS();
-                
-                newIntent.putExtra(getResources().getString(R.string.destination_name),stationName);
-                newIntent.putExtra("lng",finalDestination.getLongitude());
-                newIntent.putExtra("lat",finalDestination.getLatitude());
-                startService(newIntent);
-
-                Intent startMain = new Intent(Intent.ACTION_MAIN);
-                startMain.addCategory(Intent.CATEGORY_HOME);
-                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(startMain);
-
-                isServiceStarted = Boolean.TRUE;
-                Log.d(LOG_TAG, finalDestination.getLongitude() + " " + isServiceStarted);
+            	addPreviousLocation();            	
+            	startBackgroundService();
             }
+        });
+        mButtonPrevious.setOnClickListener(new View.OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+		        previousSearchDialog();
+				
+			}
+        	
         });
         mAutoComplete.setThreshold(2);
         mAutoComplete.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));         
@@ -171,11 +171,13 @@ public class MainActivity extends Activity {
 
 			@Override
 		    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-				stationName = (String) adapterView.getItemAtPosition(position);
+				//stationName = (String) adapterView.getItemAtPosition(position);
+				finalDestination.setProvider((String) adapterView.getItemAtPosition(position));
 		        Double lat = 0.0, lng = 0.0;
 		        
                 for (String item : coordinatesAndNames) {
-                    if (item.startsWith(stationName)) {
+                    //if (item.startsWith(stationName)) {
+                	if (item.startsWith(finalDestination.getProvider())) {
                         lat = getLatitude(item);
                         lng = getLongitude(item);
                         break;
@@ -218,12 +220,100 @@ public class MainActivity extends Activity {
 				} else {
 					setTextView(View.INVISIBLE);
 				}
-				
-				
 			}
         	
         });
         new CountryThread().execute();
+    }
+    private void startBackgroundService(){
+        Intent newIntent = new Intent(MainActivity.this,BackgroundService.class);
+        
+        stopGPS();
+        
+        newIntent.putExtra(getResources().getString(R.string.destination_name),finalDestination.getProvider());
+        newIntent.putExtra("lng",finalDestination.getLongitude());
+        newIntent.putExtra("lat",finalDestination.getLatitude());
+        startService(newIntent);
+
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
+
+        isServiceStarted = Boolean.TRUE;
+        Log.d(LOG_TAG, finalDestination.getLongitude() + " " + isServiceStarted);
+    }
+    private void addPreviousLocation(){
+    	Double lat=0.0;
+    	Double lng=0.0;
+    	
+        for (String item : coordinatesAndNames) {
+            if (item.startsWith(finalDestination.getProvider())) {
+                lat = getLatitude(item);
+                lng = getLongitude(item);
+                break;
+            }
+        }             	
+        Location l = new Location(finalDestination.getProvider());
+        l.setLatitude(lat);
+        l.setLongitude(lng);
+        Log.d(LOG_TAG,"addLocation: " + finalDestination.getProvider() );
+        mDataBaseHandler.addLocation(l);
+    }
+    private void previousSearchDialog(){
+    	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
+                MainActivity.this);
+        builderSingle.setIcon(R.drawable.ic_launcher);
+        builderSingle.setTitle("Previous searches:-");
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+        		MainActivity.this,
+                android.R.layout.select_dialog_singlechoice);
+        
+        ArrayList<Location> locations = mDataBaseHandler.getAllLocations();
+
+        // Adding all previous searched locations to the
+        // AlertDialog.
+        for (Location l: locations) {
+        	arrayAdapter.add(l.getProvider());
+        }
+
+        builderSingle.setNegativeButton("cancel",
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        builderSingle.setAdapter(arrayAdapter,
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        final String strName = arrayAdapter.getItem(which);
+                        AlertDialog.Builder builderInner = new AlertDialog.Builder(
+                        		MainActivity.this);
+                        builderInner.setMessage(strName);
+                        builderInner.setTitle("Set end destination?");
+                        builderInner.setPositiveButton("GO",
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(
+                                            DialogInterface dialog,
+                                            int which) {
+                                    	// User has choosen an new final destination
+                                        finalDestination = mDataBaseHandler.getLocationFromName(strName);
+                                        dialog.dismiss();
+                                        startBackgroundService();
+                                        
+                                    }
+                                });
+                        builderInner.show();
+                    }
+                });
+        builderSingle.show();
     }
 	private ArrayList<String> autocomplete(String input) {
 	    ArrayList<String> resultList = null;
@@ -272,10 +362,10 @@ public class MainActivity extends Activity {
 	        		//https://maps.googleapis.com/maps/api/place/details/json?reference=CjQhAAAAO2dWsIL5-IRUi1cN0V0DLCUPoVJRNR_9xGIv5HMXayEvAba0uvh9EbP3iYDIPOLfEhBCJSVOqPXTkuANitD_1pAJGhQivcKS6O1-nbRRvtwPr1gmMmJ6ew&sensor=true&key=AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA
 	        		String reference = predsJsonArray.getJSONObject(i).getString("reference");
 	        		String coordinates = getCoordinates(reference);
-	        		String stationName = predsJsonArray.getJSONObject(i).getString("description");
+	        		String station = predsJsonArray.getJSONObject(i).getString("description");
 	        		
-	        		resultList.add(stationName);
-	        		coordinatesAndNames.add(stationName + " " + coordinates);
+	        		resultList.add(station);
+	        		coordinatesAndNames.add(station + " " + coordinates);
 	        	}
         		
 	        }	        
@@ -437,7 +527,7 @@ public class MainActivity extends Activity {
         
         mTextViewSpeed.setText(speed);       
         mTextViewDistance.setText(dist);        
-        mTextViewStation.setText(stationName);
+        mTextViewStation.setText(finalDestination.getProvider());
 
     }
     public void setTextView(int visible){
@@ -466,7 +556,7 @@ public class MainActivity extends Activity {
         mTextViewDistance.setText(dist);
         mTextViewDistance.setVisibility(visible);
         
-        mTextViewStation.setText(stationName);
+        mTextViewStation.setText(finalDestination.getProvider());
         mTextViewStation.setVisibility(visible);
     }
     @Override
