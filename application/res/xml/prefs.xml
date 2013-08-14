@@ -18,7 +18,7 @@
         android:key="country"
         android:title="Select country code"
         android:summary="To improve your search performace add your country code here. Ex Sweden=SE, Brazil=BR"
-        android:defaultValue="SE"
+        android:defaultValue="se"
         android:inputType="textShortMessage"
         />
 </PreferenceScreen>
