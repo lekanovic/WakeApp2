@@ -24,7 +24,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/autotext_round_corners"
             android:ems="10"
-            android:hint="Search station" />
+            android:hint="Search station"
+            android:singleLine="true" />
 
         <Button
             android:id="@+id/button"
