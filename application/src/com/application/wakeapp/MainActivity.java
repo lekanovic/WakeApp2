@@ -253,19 +253,7 @@ public class MainActivity extends Activity {
 	        while ((read = in.read(buff)) != -1) {
 	            jsonResults.append(buff, 0, read);
 	        }
-	    } catch (MalformedURLException e) {
-	        Log.e(LOG_TAG, "Error processing Places API URL", e);
-	        return resultList;
-	    } catch (IOException e) {
-	        Log.e(LOG_TAG, "Error connecting to Places API", e);
-	        return resultList;
-	    } finally {
-	        if (conn != null) {
-	            conn.disconnect();
-	        }
-	    }
-
-	    try {
+	        
 	        // Create a JSON object hierarchy from the results
 	        JSONObject jsonObj = new JSONObject(jsonResults.toString());
 	        JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
@@ -290,11 +278,22 @@ public class MainActivity extends Activity {
 	        		coordinatesAndNames.add(stationName + " " + coordinates);
 	        	}
         		
-	        }
+	        }	        
+	    } catch (MalformedURLException e) {
+	        Log.e(LOG_TAG, "Error processing Places API URL", e);
+	        return resultList;
+	    } catch (IOException e) {
+	        Log.e(LOG_TAG, "Error connecting to Places API", e);
+	        return resultList;
 	    } catch (JSONException e) {
-	        Log.e(LOG_TAG, "Cannot process JSON results", e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+	        if (conn != null) {
+	            conn.disconnect();
+	        }
 	    }
-	    
+
 	    return resultList;
 	}
 	private String getCoordinates(String ref){
