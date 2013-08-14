@@ -63,7 +63,7 @@ public class DataBaseHandler extends SQLiteOpenHelper{
         values.put(KEY_LATITUDE,l.getLatitude());
         values.put(KEY_LONGITUDE,l.getLongitude());
 
-        db.insert(TABLE_STATIONS,null,values);
+        db.insertOrThrow(TABLE_STATIONS,null,values); 
     }
     public Location getLocationFromName(String name){
     	 
