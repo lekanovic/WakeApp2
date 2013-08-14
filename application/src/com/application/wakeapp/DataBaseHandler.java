@@ -89,6 +89,13 @@ public class DataBaseHandler extends SQLiteOpenHelper{
          
     	 return loc;
     }
+    public void deleteLocation(String name){
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rows = db.delete(TABLE_STATIONS, KEY_NAME + "=" + "'" + name + "'", null);
+        
+        Log.d(LOG_TAG,"Rows removed: " + rows);
+        
+    }
     public ArrayList<Location> getAllLocations(){
         ArrayList<Location> previousLocations = new ArrayList<Location>();
         String selectQuery = "SELECT * FROM " + TABLE_STATIONS;
