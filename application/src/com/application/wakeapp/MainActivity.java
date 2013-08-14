@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
         Log.d(LOG_TAG," onCreate " + isServiceStarted);
         
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        countryCode = prefs.getString("country","SE");
+        countryCode = prefs.getString("country","se").toLowerCase(Locale.getDefault());
 
         getWindow().setBackgroundDrawableResource(R.drawable.background);
         
@@ -713,7 +713,7 @@ public class MainActivity extends Activity {
 	        JSONObject jsonObj;
 			jsonObj = new JSONObject(jsonResults.toString());
 			//JSONObject jsonObject = jsonObj.getJSONObject("countryCode");
-			country = jsonObj.getString("countryCode");
+			country = jsonObj.getString("countryCode").toLowerCase(Locale.getDefault());
 			Log.d(LOG_TAG,"Countrycode: " + country);						 
 
 
@@ -731,11 +731,23 @@ public class MainActivity extends Activity {
     }
     class CountryThread extends AsyncTask<Void,Void,Void>{
     	protected Void doInBackground(Void...params){
-    		String country = getCountryCode(55.71,13.23);            
+            do{//We need to get an position
+                try {
+                    Thread.sleep(1000);
+                    Log.d(LOG_TAG,"looking for GPS");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }while(myLocation == null);
+            
+    		String country = getCountryCode(myLocation.getLatitude(),
+    										myLocation.getLongitude());
+    		
     		SharedPreferences.Editor editor = prefs.edit();
     		
     		if (!country.isEmpty() && !country.equals(countryCode)){
-    			countryCode = country;
+    			countryCode = country.toLowerCase(Locale.getDefault());
+    			Log.d(LOG_TAG,"New country code found: " + countryCode);
     			editor.putString("country",country);    			
     			editor.commit();
     		}
