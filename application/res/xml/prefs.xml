@@ -17,7 +17,7 @@
     <EditTextPreference
         android:key="country"
         android:title="Select country code"
-        android:summary="To improve your search performace add your country code here. Ex Sweden=SE, Brazil=BR"
+        android:summary="To improve your search performace add your country code here. Ex Sweden=se, Brazil=br"
         android:defaultValue="se"
         android:inputType="textShortMessage"
         />

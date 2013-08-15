@@ -3,6 +3,7 @@ package com.application.trainsnooze;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
@@ -62,8 +63,11 @@ public class DataBaseHandler extends SQLiteOpenHelper{
         values.put(KEY_NAME,l.getProvider());
         values.put(KEY_LATITUDE,l.getLatitude());
         values.put(KEY_LONGITUDE,l.getLongitude());
-
-        db.insertOrThrow(TABLE_STATIONS,null,values); 
+        try {
+        	db.insertOrThrow(TABLE_STATIONS,null,values);
+        } catch (SQLException e){
+        	e.printStackTrace();
+        }
     }
     public Location getLocationFromName(String name){
     	 

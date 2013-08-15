@@ -5,5 +5,5 @@
     <header
             android:fragment="com.application.wakeapp.WakeAppPreferences$SettingsFragment"
             android:title="Settings"
-            android:summary="Change default settings for WakeApp"/>
+            android:summary="Change default settings for TrainSnooze"/>
 </preference-headers>
