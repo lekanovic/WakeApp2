@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="run_in_background">Running in background</string>
+    <string name="delete">Delete</string>
+    <string name="GO">Go</string>
+    <string name="Set_or_delete">"Set end destination?\nDelete end destination?"</string>
+    <string name="cancel">Cancel</string>
+    <string name="previous_search">Previous searches</string>
+    <string name="enableGSMWarning">You must enable data traffic!</string>
+    <string name="enableGPSWarning">You must enable GPS sensor!</string>
     <string name="destination_name">destination</string>
     <string name="app_name">TrainSnooze</string>
     <string name="action_settings">Settings</string>

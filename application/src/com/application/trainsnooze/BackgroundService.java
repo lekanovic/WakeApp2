@@ -48,7 +48,7 @@ public class BackgroundService extends Service {
                         Notification.FLAG_ONGOING_EVENT);
 
         not.flags = Notification.FLAG_ONGOING_EVENT;
-        not.setLatestEventInfo(this, "TrainSnooze", "Running in background", contentIntent);
+        not.setLatestEventInfo(this, "TrainSnooze", this.getString(R.string.run_in_background), contentIntent);
         mNotificationManager.notify(1, not);
 
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
@@ -136,7 +136,7 @@ public class BackgroundService extends Service {
     	intent.setAction(Intent.ACTION_MAIN);
     	intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     	
-    	intent.putExtra(getResources().getString(R.string.destination_name), destinationName);
+    	intent.putExtra(this.getString(R.string.destination_name), destinationName);
     	
     	startActivity(intent);
         stopGPS();

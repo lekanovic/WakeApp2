@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
         if (!isGPSSettingsEnabled()){
         	Log.d(LOG_TAG,"GPS sensor is not enabled");
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("You must enable GPS sensor!");
+			builder.setMessage(this.getString(R.string.enableGPSWarning));
 			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
 	            	startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
 			Log.d(LOG_TAG,"Data traffic is not enabled");
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("You must enable data traffic!");
+			builder.setMessage(this.getString(R.string.enableGSMWarning));
 			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
 	            	startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
@@ -263,7 +263,7 @@ public class MainActivity extends Activity {
     	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
                 MainActivity.this);
         builderSingle.setIcon(R.drawable.ic_launcher);
-        builderSingle.setTitle("Previous searches:-");
+        builderSingle.setTitle(this.getString(R.string.previous_search));
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
         		MainActivity.this,
                 android.R.layout.select_dialog_singlechoice);
@@ -276,7 +276,7 @@ public class MainActivity extends Activity {
         	arrayAdapter.add(l.getProvider());
         }
         
-        builderSingle.setNegativeButton("cancel",
+        builderSingle.setNegativeButton(this.getString(R.string.cancel),
                 new DialogInterface.OnClickListener() {
 
                     @Override
@@ -297,10 +297,13 @@ public class MainActivity extends Activity {
                         //finalDestination = mDataBaseHandler.getLocationFromName(strName);
                         //dialog.dismiss();
                         //startBackgroundService();
+                        String set_or_delete = getResources().getString(R.string.Set_or_delete);
+                        String go = getResources().getString(R.string.GO);
+                        String delete = getResources().getString(R.string.delete);
                         
                         builderInner.setMessage(strName);
-                        builderInner.setTitle("Set end destination?\nDelete end destination?");
-                        builderInner.setPositiveButton("GO",
+                        builderInner.setTitle(set_or_delete);
+                        builderInner.setPositiveButton(go,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(
@@ -314,7 +317,7 @@ public class MainActivity extends Activity {
                                     }
                                 });
                         
-                        builderInner.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                        builderInner.setNegativeButton(delete, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Log.d(LOG_TAG,"onClick no");
                                 mDataBaseHandler.deleteLocation(strName);
