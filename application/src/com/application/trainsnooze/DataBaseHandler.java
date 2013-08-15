@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -66,7 +67,7 @@ public class DataBaseHandler extends SQLiteOpenHelper{
         try {
         	db.insertOrThrow(TABLE_STATIONS,null,values);
         } catch (SQLException e){
-        	e.printStackTrace();
+        	
         }
     }
     public Location getLocationFromName(String name){
