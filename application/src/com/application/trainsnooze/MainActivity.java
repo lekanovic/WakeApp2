@@ -187,7 +187,8 @@ public class MainActivity extends Activity {
                         lng = getLongitude(item);
                         break;
                     }
-                }                
+                }
+                Log.d(LOG_TAG,"Adding finalDestination: " + finalDestination.getProvider());
                 finalDestination.setLatitude(lat);
                 finalDestination.setLongitude(lng);
 
@@ -365,9 +366,7 @@ public class MainActivity extends Activity {
         coordinatesAndNames = new ArrayList<String>();
 		String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 		String TYPE_AUTOCOMPLETE = "/autocomplete";
-		String OUT_JSON = "/json";
-		
-		Log.d(LOG_TAG,"autocomplete");
+		String OUT_JSON = "/json";		
 		
 	    HttpURLConnection conn = null;
 	    StringBuilder jsonResults = new StringBuilder();
@@ -377,7 +376,6 @@ public class MainActivity extends Activity {
         	sb.append("&components=country:" + countryCode);	        
 	        sb.append("&input=" + URLEncoder.encode(input, "utf8"));
 	        
-	        Log.d(LOG_TAG,"URL: " + sb.toString());
 	        URL url = new URL(sb.toString());
 	        conn = (HttpURLConnection) url.openConnection();
 	        InputStreamReader in = new InputStreamReader(conn.getInputStream());
@@ -666,7 +664,6 @@ public class MainActivity extends Activity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-            	Log.d(LOG_TAG,"onLocationChanged");
                 myLocation = location;
                 updateText();
             }
@@ -721,7 +718,6 @@ public class MainActivity extends Activity {
     	sb.append("lat=" + lat + "&");
     	sb.append("lng=" + lng);
 
-    	Log.d(LOG_TAG,"URL; " + sb.toString());
     	try {
 	    	URL url = new URL(sb.toString());
 	    	
