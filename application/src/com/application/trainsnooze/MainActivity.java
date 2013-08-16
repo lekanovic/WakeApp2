@@ -65,6 +65,7 @@ public class MainActivity extends Activity {
     private TextView mTextInfo;
     private LocationManager locationManager;
     private Boolean isServiceStarted = Boolean.FALSE;
+    private ProgressDialog mProgressDialog;
     @SuppressWarnings("unused")
 	private Float distance;
     private Boolean isGPSEnabled = Boolean.FALSE;
@@ -229,6 +230,12 @@ public class MainActivity extends Activity {
 			}
         	
         });
+        
+		mProgressDialog = ProgressDialog.show(MainActivity.this,
+    			this.getString(R.string.search_gps),
+    			this.getString(R.string.trying_gps),
+    			true, false);
+
         new CountryThread().execute();
     }
     private void warningDialog(){
@@ -668,6 +675,7 @@ public class MainActivity extends Activity {
             public void onLocationChanged(Location location) {
                 myLocation = location;
                 updateText();
+                mProgressDialog.dismiss();
             }
 
             @Override
@@ -751,37 +759,31 @@ public class MainActivity extends Activity {
     	return country;
     }
     class CountryThread extends AsyncTask<Void,Void,Void>{
-        private ProgressDialog mProgressDialog;
-        private Boolean isGPSPosFound = Boolean.FALSE;
-        @Override
-        protected void onPreExecute() {
-        	super.onPreExecute();
-    		mProgressDialog = ProgressDialog.show(MainActivity.this,
-        			"Searching GPS position",
-        			"Trying GPS, Network and Passive provider",
-        			true, false);          	
-        }
+		private int counter=0;
         @Override
         protected void onPostExecute(Void result) {
-        	super.onPostExecute(result);
-        	if (!isGPSPosFound){
-            	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
-                        MainActivity.this);
-                builderSingle.setIcon(R.drawable.ic_launcher);
-                builderSingle.setTitle("No GPS position could be found, aborting application");
-                builderSingle.setPositiveButton("Abort",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        });
-                builderSingle.show();
+        	mProgressDialog.dismiss();
+        	
+        	// If we have exceeded timeout we should inform
+        	// the user that we cannot proceed and application
+        	// must be aborted.
+        	if ( counter >= GPS_SEARCH_TIMEOUT ) {
+	        	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
+	                    MainActivity.this);
+	            builderSingle.setIcon(R.drawable.ic_launcher);
+	            builderSingle.setTitle(getResources().getString(R.string.no_gps_pos));
+	            builderSingle.setPositiveButton(getResources().getString(R.string.aborting),
+	                    new DialogInterface.OnClickListener() {
+	                        @Override
+	                        public void onClick(DialogInterface dialog, int which) {
+	                            finish();
+	                        }
+	                    });
+	            builderSingle.show();
         	}
-        	mProgressDialog.dismiss();        	
         }
     	protected Void doInBackground(Void...params){
-    		int counter=0;
+ 		
             do{//We need to get an position
                 try {
                     Thread.sleep(1000);
@@ -793,9 +795,7 @@ public class MainActivity extends Activity {
                 	return null;
                 }
             }while(myLocation == null);                      
-            
-            isGPSPosFound = Boolean.TRUE;
-            
+                        
     		String country = getCountryCode(myLocation.getLatitude(),
     										myLocation.getLongitude());
     		

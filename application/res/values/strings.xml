@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="aborting">Aborting</string>
+    <string name="no_gps_pos">Could not find any GPS position, aborting</string>
+    <string name="trying_gps">Trying GPS, Network and Passive provider</string>
+    <string name="search_gps">"Searching for GPS position"</string>
     <string name="valid_station">Please pick an valid station!</string>
     <string name="cur_speed">Current speed</string>
     <string name="dist_dest">Distance to destination</string>
