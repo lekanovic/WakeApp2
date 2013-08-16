@@ -20,16 +20,84 @@
         ads:adUnitId="a151ff9a1a5d797"
         ads:loadAdOnCreate="true"
         ads:testDevices="TEST_EMULATOR, TEST_DEVICE_ID" >
-
     </com.google.ads.AdView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/textView1"
+        android:layout_below="@+id/textView1"
+        android:orientation="horizontal" >
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:layout_marginTop="14dp"
+            android:layout_weight="0.62"
+            android:background="@drawable/autotext_round_corners"
+            android:ems="10"
+            android:hint="Search station"
+            android:singleLine="true" >
+
+            <requestFocus />
+        </AutoCompleteTextView>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/adView"
+        android:layout_marginTop="18dp"
+        android:gravity="center"
+        android:text="Type in your end destination"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_centerHorizontal="true" >
+
+        <Button
+            android:id="@+id/button1"
+            style="@style/btnStylePrev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Previous"
+            android:textColor="@android:color/white"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/button"
+            style="@style/btnStylePrev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="14dp"
+            android:layout_marginTop="14dp"
+            android:text="GO"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:visibility="visible" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button1"
+        android:layout_below="@+id/linearLayout3"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         android:visibility="visible" >
 
@@ -90,61 +158,5 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:visibility="invisible" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="17dp"
-        android:orientation="horizontal" >
-
-        <AutoCompleteTextView
-            android:id="@+id/autoCompleteTextView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/autotext_round_corners"
-            android:ems="10"
-            android:hint="Search station"
-            android:singleLine="true" >
-
-            <requestFocus />
-        </AutoCompleteTextView>
-
-        <Button
-            android:id="@+id/button"
-            style="@style/btnStyleBeige"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/round_button"
-            android:text="GO"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"
-            android:visibility="invisible" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/adView"
-        android:layout_marginTop="18dp"
-        android:text="Type in your end destination"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <Button
-        android:id="@+id/button1"
-        style="@style/btnStyleBeige"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout1"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/round_button"
-        android:text="Previous"
-        android:textColor="@android:color/white"
-        android:textSize="20sp" />
 
 </RelativeLayout>
