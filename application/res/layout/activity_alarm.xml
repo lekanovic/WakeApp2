@@ -6,15 +6,15 @@
 
     <Button
         android:id="@+id/button1"
-        style="@style/btnStyleBeige"
+        style="@style/btnStylePrev"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignLeft="@+id/imageView1"
+        android:layout_alignRight="@+id/imageView1"
         android:layout_centerVertical="true"
         android:layout_marginTop="14dp"
-        android:text="Shut off alarm"
-        android:textColor="@android:color/black"
+        android:text="@string/shut_off_alarm"
+        android:textColor="@android:color/white"
         android:textSize="20sp" />
 
     <ImageView
@@ -33,7 +33,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/button1"
         android:layout_marginTop="37dp"
-        android:text="You have arrived at"
+        android:text="@string/alarm_arrive_msg"
         android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold|italic" />
