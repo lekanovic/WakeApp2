@@ -74,9 +74,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:text="Previous"
+            android:text="History"
             android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/button"
@@ -85,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="14dp"
             android:layout_marginTop="14dp"
-            android:text="GO"
+            android:text="Confirm"
             android:textColor="@android:color/white"
             android:textSize="20sp"
             android:visibility="visible" />
@@ -97,7 +98,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout3"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:orientation="vertical"
         android:visibility="visible" >
 
