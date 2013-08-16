@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="cur_speed">Current speed</string>
+    <string name="dist_dest">Distance to destination</string>
+    <string name="final_dest">Final destination</string>
+    <string name="confirm_btn">Confirm</string>
+    <string name="history_btn">History</string>
     <string name="alarm_arrive_msg">You have arrived at</string>
     <string name="shut_off_alarm">Shut off alarm</string>
     <string name="run_in_background">Running in background</string>

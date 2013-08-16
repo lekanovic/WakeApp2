@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:text="History"
+            android:text="@string/history_btn"
             android:textColor="@android:color/white"
             android:textSize="20sp"
             android:visibility="visible" />
@@ -86,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="14dp"
             android:layout_marginTop="14dp"
-            android:text="Confirm"
+            android:text="@string/confirm_btn"
             android:textColor="@android:color/white"
             android:textSize="20sp"
             android:visibility="visible" />
@@ -107,7 +107,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Final destination"
+            android:text="@string/final_dest"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textStyle="bold|italic"
             android:visibility="invisible" />
@@ -126,7 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Distance to destination"
+            android:text="@string/dist_dest"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textStyle="bold|italic"
             android:visibility="invisible" />
@@ -145,7 +145,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Current speed"
+            android:text="@string/cur_speed"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textStyle="bold|italic"
             android:visibility="invisible" />
