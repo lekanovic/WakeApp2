@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="valid_station">Please pick an valid station!</string>
     <string name="cur_speed">Current speed</string>
     <string name="dist_dest">Distance to destination</string>
     <string name="final_dest">Final destination</string>

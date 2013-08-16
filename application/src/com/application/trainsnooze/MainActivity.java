@@ -151,8 +151,13 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View view) {
-            	addPreviousLocation();            	
-            	startBackgroundService();
+            	if ( !finalDestination.getProvider().equals("Destination")) {
+            		addPreviousLocation();            	
+            		startBackgroundService();
+            	} else {
+            		warningDialog();
+            		
+            	}
             }
         });
         mButtonPrevious.setOnClickListener(new View.OnClickListener(){
@@ -186,8 +191,7 @@ public class MainActivity extends Activity {
                 finalDestination.setLongitude(lng);
 
                 distance = myLocation.distanceTo(finalDestination);
-		        
-		        mButton.setVisibility(View.VISIBLE);
+		                    
 		        setTextView(View.VISIBLE);
 		        hideSoftKeyboard();
 		    }
@@ -214,7 +218,6 @@ public class MainActivity extends Activity {
 					int arg3) {
 				String str = charsequence.toString();
 				if (TextUtils.isEmpty(str)) {
-					mButton.setVisibility(View.INVISIBLE);
 					setTextView(View.INVISIBLE);
 				} else {
 					setTextView(View.INVISIBLE);
@@ -223,6 +226,22 @@ public class MainActivity extends Activity {
         	
         });
         new CountryThread().execute();
+    }
+    private void warningDialog(){
+    	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
+                MainActivity.this);
+        builderSingle.setIcon(R.drawable.ic_launcher);
+        builderSingle.setTitle(this.getString(R.string.valid_station));
+        builderSingle.setPositiveButton("Ok, I get it",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(
+                            DialogInterface dialog,
+                            int which) {
+                        dialog.dismiss();                        
+                    }
+                });
+        builderSingle.show();
     }
     private void startBackgroundService(){
         Intent newIntent = new Intent(MainActivity.this,BackgroundService.class);
@@ -762,11 +781,11 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Log.d(LOG_TAG,"onResume");
+        
 		// Find our new position if we have moved
 		findGPSPosition();
 	
         if (isServiceStarted){            
-            mButton.setVisibility(View.VISIBLE);
             setTextView(View.VISIBLE);
 
             // Stop the background service when we
@@ -790,10 +809,6 @@ public class MainActivity extends Activity {
     	// If we get an intent from the AlarmActivity that means
     	// we should exit application and set it to on-first-start-mode
         if ( msg != null && msg.equals("PingByAlarm")){
-        	//mSearchView.setIconified(true);
-            //mListView.setVisibility(View.INVISIBLE);
-            mButton.setVisibility(View.INVISIBLE);
-            //mTextView.setVisibility(View.INVISIBLE);
             setTextView(View.INVISIBLE);
             finish();
         }
