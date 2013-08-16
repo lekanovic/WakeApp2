@@ -151,7 +151,8 @@ public class MainActivity extends Activity {
 
             @Override
             public void onClick(View view) {
-            	if ( !finalDestination.getProvider().equals("Destination")) {
+            	if ( !finalDestination.getProvider().equals("Destination") &&
+            		 !TextUtils.isEmpty(mAutoComplete.getText())) {
             		addPreviousLocation();            	
             		startBackgroundService();
             	} else {
