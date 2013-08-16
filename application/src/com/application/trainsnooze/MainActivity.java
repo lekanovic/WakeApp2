@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+import android.app.ProgressDialog;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -74,6 +75,7 @@ public class MainActivity extends Activity {
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
     private static final String LOG_TAG = "TrainSnooze";
     private static final String API_KEY = "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA";
+    private static final int GPS_SEARCH_TIMEOUT = 16;
     private String countryCode;
     private DataBaseHandler mDataBaseHandler;
     
@@ -749,7 +751,37 @@ public class MainActivity extends Activity {
     	return country;
     }
     class CountryThread extends AsyncTask<Void,Void,Void>{
+        private ProgressDialog mProgressDialog;
+        private Boolean isGPSPosFound = Boolean.FALSE;
+        @Override
+        protected void onPreExecute() {
+        	super.onPreExecute();
+    		mProgressDialog = ProgressDialog.show(MainActivity.this,
+        			"Searching GPS position",
+        			"Trying GPS, Network and Passive provider",
+        			true, false);          	
+        }
+        @Override
+        protected void onPostExecute(Void result) {
+        	super.onPostExecute(result);
+        	if (!isGPSPosFound){
+            	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
+                        MainActivity.this);
+                builderSingle.setIcon(R.drawable.ic_launcher);
+                builderSingle.setTitle("No GPS position could be found, aborting application");
+                builderSingle.setPositiveButton("Abort",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        });
+                builderSingle.show();
+        	}
+        	mProgressDialog.dismiss();        	
+        }
     	protected Void doInBackground(Void...params){
+    		int counter=0;
             do{//We need to get an position
                 try {
                     Thread.sleep(1000);
@@ -757,7 +789,12 @@ public class MainActivity extends Activity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }while(myLocation == null);
+                if ( counter++ > GPS_SEARCH_TIMEOUT) {
+                	return null;
+                }
+            }while(myLocation == null);                      
+            
+            isGPSPosFound = Boolean.TRUE;
             
     		String country = getCountryCode(myLocation.getLatitude(),
     										myLocation.getLongitude());
