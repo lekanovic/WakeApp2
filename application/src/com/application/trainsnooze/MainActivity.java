@@ -90,9 +90,9 @@ public class MainActivity extends Activity {
         countryCode = prefs.getString("country","se").toLowerCase(Locale.getDefault());
 
         getWindow().setBackgroundDrawableResource(R.drawable.background);
-        
+
         finalDestination = new Location("Destination");
-        
+
         // User should enable GPS
         if (!isGPSSettingsEnabled()){
         	Log.d(LOG_TAG,"GPS sensor is not enabled");
@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
 			AlertDialog alert = builder.create();	
 			alert.show();
 		} else {
-		        
+
         	findGPSPosition();
 		}
 
@@ -553,9 +553,14 @@ public class MainActivity extends Activity {
     }
 	private Boolean isDataTrafficEnabled(){
 		ConnectivityManager conMan = ((ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE));
-		boolean is3GEnabled = !(conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.DISCONNECTED
-                && conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getReason().equals("dataDisabled"));
+		String reason = conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getReason();
 		
+		if ( reason == null ) 
+			return Boolean.FALSE;
+		
+		boolean is3GEnabled = !(conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.DISCONNECTED
+                && reason.equals("dataDisabled"));
+
 		return is3GEnabled;
 	}
     public void updateText(){
