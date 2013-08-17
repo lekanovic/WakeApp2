@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
     private static final String LOG_TAG = "TrainSnooze";
     private static final String API_KEY = "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA";
-    private static final int GPS_SEARCH_TIMEOUT = 16;
+    private static final int GPS_SEARCH_TIMEOUT = 32;
     private String countryCode;
     private DataBaseHandler mDataBaseHandler;
     
