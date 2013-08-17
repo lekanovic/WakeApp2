@@ -107,6 +107,7 @@ public class MainActivity extends Activity {
 			AlertDialog alert = builder.create();
 			alert.show();
         }
+
         // We must make sure that the user has enabled 3g traffic
         // before we can proceed. If it's not enabled we should call
         // finish() and open settings menu
@@ -118,10 +119,11 @@ public class MainActivity extends Activity {
 			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
 	            	startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
+	            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 	            	finish();
 	            }
 	        });
-			AlertDialog alert = builder.create();
+			AlertDialog alert = builder.create();	
 			alert.show();
 		} else {
 		        
@@ -230,13 +232,15 @@ public class MainActivity extends Activity {
 			}
         	
         });
-        
-		mProgressDialog = ProgressDialog.show(MainActivity.this,
-    			this.getString(R.string.search_gps),
-    			this.getString(R.string.trying_gps),
-    			true, false);
 
-        new CountryThread().execute();
+        if ( isGPSSettingsEnabled() && isDataTrafficEnabled()) {
+			mProgressDialog = ProgressDialog.show(MainActivity.this,
+	    			this.getString(R.string.search_gps),
+	    			this.getString(R.string.trying_gps),
+	    			true, false);
+	
+	        new CountryThread().execute();
+        }
     }
     private void warningDialog(){
     	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
@@ -546,22 +550,13 @@ public class MainActivity extends Activity {
         	isOn = Boolean.TRUE;
 
         return isOn;
-    }    
+    }
 	private Boolean isDataTrafficEnabled(){
-		NetworkInfo networkInfo = null;
-        ConnectivityManager connectivityManager = 
-        		(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        
-        if (connectivityManager != null){
-        	networkInfo = connectivityManager
-                    .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		    if (!networkInfo.isAvailable()) {
-		    	networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-		    	
-		    }
-        }
-        
-		return networkInfo == null ? false : networkInfo.isConnected();
+		ConnectivityManager conMan = ((ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE));
+		boolean is3GEnabled = !(conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.DISCONNECTED
+                && conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getReason().equals("dataDisabled"));
+		
+		return is3GEnabled;
 	}
     public void updateText(){
         String dist;
@@ -673,9 +668,11 @@ public class MainActivity extends Activity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                if ( isGPSSettingsEnabled() && isDataTrafficEnabled())
+                	mProgressDialog.dismiss();
+                
                 myLocation = location;
                 updateText();
-                mProgressDialog.dismiss();
             }
 
             @Override

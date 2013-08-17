@@ -19,8 +19,8 @@
     <string name="Set_or_delete">"Set end destination?\nDelete end destination?"</string>
     <string name="cancel">Cancel</string>
     <string name="previous_search">Previous searches</string>
-    <string name="enableGSMWarning">You must enable data traffic!</string>
-    <string name="enableGPSWarning">You must enable GPS sensor!</string>
+    <string name="enableGSMWarning">Enable data traffic, Or disable Wifi</string>
+    <string name="enableGPSWarning">Enable GPS sensor</string>
     <string name="destination_name">destination</string>
     <string name="app_name">TrainSnooze</string>
     <string name="action_settings">Settings</string>
