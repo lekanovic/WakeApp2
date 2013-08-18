@@ -89,47 +89,7 @@ public class MainActivity extends Activity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         countryCode = prefs.getString("country","se").toLowerCase(Locale.getDefault());
 
-        getWindow().setBackgroundDrawableResource(R.drawable.background);
-
         finalDestination = new Location("Destination");
-
-        // User should enable GPS
-        if (!isGPSSettingsEnabled()){
-        	Log.d(LOG_TAG,"GPS sensor is not enabled");
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(this.getString(R.string.enableGPSWarning));
-			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int id) {
-	            	startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-	            	finish();
-	            }
-	        });
-			AlertDialog alert = builder.create();
-			alert.show();
-        }
-
-        // We must make sure that the user has enabled 3g traffic
-        // before we can proceed. If it's not enabled we should call
-        // finish() and open settings menu
-		if (!isDataTrafficEnabled()){
-			Log.d(LOG_TAG,"Data traffic is not enabled");
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(this.getString(R.string.enableGSMWarning));
-			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int id) {
-	            	startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
-	            	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-	            	finish();
-	            }
-	        });
-			AlertDialog alert = builder.create();	
-			alert.show();
-		} else {
-
-        	findGPSPosition();
-		}
-
 		mDataBaseHandler = new DataBaseHandler(MainActivity.this);
 				
 		mAutoComplete = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView1);
@@ -233,7 +193,37 @@ public class MainActivity extends Activity {
         	
         });
 
-        if ( isGPSSettingsEnabled() && isDataTrafficEnabled()) {
+        if ( !isAllSettingsEnabled()) {
+        	Log.d(LOG_TAG,"!isAllSettingsEnabled");
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			StringBuilder sb = new StringBuilder();
+			
+			if (!isDataTrafficEnabled())
+				sb.append("Please enable: Data traffic\n");
+			if (isWifiEnabled())
+				sb.append("Please disable: Wifi\n");
+			if (!isGPSSettingsEnabled())
+				sb.append("Please enable: GPS\n");
+			
+			builder.setMessage(sb.toString());
+			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	            	if (!isDataTrafficEnabled())
+	            		startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
+	            	if (isWifiEnabled())
+	            		startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+	            	if (!isGPSSettingsEnabled())
+	            		startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+	            	finish();
+	            }
+	        });
+			AlertDialog alert = builder.create();	
+			alert.show();
+        	
+        } else {
+        	
+        	findGPSPosition();
+        	
 			mProgressDialog = ProgressDialog.show(MainActivity.this,
 	    			this.getString(R.string.search_gps),
 	    			this.getString(R.string.trying_gps),
@@ -537,14 +527,22 @@ public class MainActivity extends Activity {
                 getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
-
+    private Boolean isAllSettingsEnabled(){
+    	return (isGPSSettingsEnabled() && isDataTrafficEnabled() && !isWifiEnabled());
+    }
+    private Boolean isWifiEnabled(){
+    	ConnectivityManager conMan = ((ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE));
+    	boolean isWifiEnabled = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isAvailable();
+    	
+    	return isWifiEnabled;
+    }
     private Boolean isGPSSettingsEnabled(){
     	Boolean isOn = Boolean.FALSE;
 
     	String provider = Settings.Secure.getString(getContentResolver(),
     			Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-
-        if(provider.equals("")){
+    	
+        if(provider.isEmpty()){
         	isOn = Boolean.FALSE;
         } else
         	isOn = Boolean.TRUE;
@@ -555,8 +553,8 @@ public class MainActivity extends Activity {
 		ConnectivityManager conMan = ((ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE));
 		String reason = conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getReason();
 		
-		if ( reason == null ) 
-			return Boolean.FALSE;
+		if ( reason == null )
+			return Boolean.FALSE;			
 		
 		boolean is3GEnabled = !(conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.DISCONNECTED
                 && reason.equals("dataDisabled"));
@@ -673,8 +671,10 @@ public class MainActivity extends Activity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                if ( isGPSSettingsEnabled() && isDataTrafficEnabled())
+            	if ( isAllSettingsEnabled()) {
+            		Log.d(LOG_TAG,"mProgressDialog.dismiss");
                 	mProgressDialog.dismiss();
+            	}
                 
                 myLocation = location;
                 updateText();
