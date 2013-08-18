@@ -41,6 +41,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
@@ -75,7 +76,12 @@ public class MainActivity extends Activity {
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000*1; // 1 second
     private static final String LOG_TAG = "TrainSnooze";
-    private static final String API_KEY = "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA";
+    private static final String[] KEYS = {"AIzaSyAUvx8iiRdW6f1pqz5zIzdRNFAn5mRtN3I",
+    									  "AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA",
+    									  "AIzaSyBdzwyhRxZI48c84-IkqNepqS4QQwmHiwg",
+    									  "AIzaSyDIUeyPncrOXJg1bLoVr0srUSRofqegPn8"};
+    
+    private static String API_KEY = "";
     private static final int GPS_SEARCH_TIMEOUT = 32;
     private String countryCode;
     private DataBaseHandler mDataBaseHandler;
@@ -85,6 +91,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG," onCreate " + isServiceStarted);
+        
+        pickRandomAPIKey();
         
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         countryCode = prefs.getString("country","se").toLowerCase(Locale.getDefault());
@@ -135,7 +143,7 @@ public class MainActivity extends Activity {
 			}
         	
         });
-        mAutoComplete.setThreshold(2);
+        mAutoComplete.setThreshold(4);
         mAutoComplete.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));         
         mAutoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
@@ -231,6 +239,12 @@ public class MainActivity extends Activity {
 	
 	        new CountryThread().execute();
         }
+    }
+    private void pickRandomAPIKey(){
+        final Random rand = new Random();
+        int chooseAPIKEY = rand.nextInt(KEYS.length);
+        API_KEY = KEYS[chooseAPIKEY];
+        Log.d(LOG_TAG,"Random: " + chooseAPIKEY + " API_KEY " + API_KEY);
     }
     private void warningDialog(){
     	AlertDialog.Builder builderSingle = new AlertDialog.Builder(
