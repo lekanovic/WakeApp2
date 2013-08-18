@@ -404,7 +404,7 @@ public class MainActivity extends Activity {
 	        	
 	        	if ( s.contains("train_station")|| s.contains("bus_station")||
 	        		s.contains("subway_station")||s.contains("transit_station")||
-	        		s.contains("locality")){
+	        		s.contains("locality")||s.contains("establishment")){
 	        		//https://maps.googleapis.com/maps/api/place/details/json?reference=CjQhAAAAO2dWsIL5-IRUi1cN0V0DLCUPoVJRNR_9xGIv5HMXayEvAba0uvh9EbP3iYDIPOLfEhBCJSVOqPXTkuANitD_1pAJGhQivcKS6O1-nbRRvtwPr1gmMmJ6ew&sensor=true&key=AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA
 	        		String reference = predsJsonArray.getJSONObject(i).getString("reference");
 	        		String coordinates = getCoordinates(reference);
