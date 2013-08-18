@@ -364,6 +364,16 @@ public class MainActivity extends Activity {
                 });
         builderSingle.show();
     }
+    // Filter places that is not of interest
+    private Boolean isPlaceAccepted(String place) {
+    	String[] places_array = getResources().getStringArray(R.array.places_array);
+    	for (String s: places_array){
+    		if (place.contains(s))
+    			return Boolean.TRUE;
+    	}
+	
+    	return Boolean.FALSE;
+    }
 	private ArrayList<String> autocomplete(String input) {
 	    ArrayList<String> resultList = null;
         coordinatesAndNames = new ArrayList<String>();
@@ -402,9 +412,7 @@ public class MainActivity extends Activity {
 	        	String s = predsJsonArray.getJSONObject(i).getString("types");
 	        	Log.d(LOG_TAG,"City: " + predsJsonArray.getJSONObject(i).getString("description") + " types " + s);
 	        	
-	        	if ( s.contains("train_station")|| s.contains("bus_station")||
-	        		s.contains("subway_station")||s.contains("transit_station")||
-	        		s.contains("locality")||s.contains("establishment")){
+	        	if ( isPlaceAccepted(s) ){
 	        		//https://maps.googleapis.com/maps/api/place/details/json?reference=CjQhAAAAO2dWsIL5-IRUi1cN0V0DLCUPoVJRNR_9xGIv5HMXayEvAba0uvh9EbP3iYDIPOLfEhBCJSVOqPXTkuANitD_1pAJGhQivcKS6O1-nbRRvtwPr1gmMmJ6ew&sensor=true&key=AIzaSyAubMfhG4FU2Wxy3Nv0qj8X0QJ3LItcokA
 	        		String reference = predsJsonArray.getJSONObject(i).getString("reference");
 	        		String coordinates = getCoordinates(reference);

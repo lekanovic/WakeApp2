@@ -26,5 +26,21 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 	<string name="arrive_message">You have arrived at your final destination...thank you for choosing wake app</string>
+	<string name="train">train_station</string>
+	<string name="bus">bus_station</string>
+	<string name="subway">subway_station</string>
+	<string name="transit">transit_station</string>
+	<string name="locality">locality</string>
+	<string name="establishment">establishment</string>
+	
+	<string-array name="places_array">
+	    <item>@string/train</item>
+	    <item>@string/bus</item>
+	    <item>@string/subway</item>
+	    <item>@string/transit</item>
+	    <item>@string/locality</item>
+	    <item>@string/establishment</item>	    
+	</string-array>
+	    
 	    
 </resources>
