@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <string name="enable_gps">Please enable: GPS\n</string>
+    <string name="disable_wifi">Please disable: Wifi\n</string>
+    <string name="enable_data">Please enable: Data traffic\n</string>
     <string name="aborting">Aborting</string>
     <string name="no_gps_pos">Could not find any GPS position, aborting</string>
     <string name="trying_gps">Trying GPS, Network and Passive provider</string>

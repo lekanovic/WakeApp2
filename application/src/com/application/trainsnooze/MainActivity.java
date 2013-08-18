@@ -92,7 +92,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG," onCreate " + isServiceStarted);
         
-        pickRandomAPIKey();
+        pickAPIKey();
         
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         countryCode = prefs.getString("country","se").toLowerCase(Locale.getDefault());
@@ -207,11 +207,11 @@ public class MainActivity extends Activity {
 			StringBuilder sb = new StringBuilder();
 			
 			if (!isDataTrafficEnabled())
-				sb.append("Please enable: Data traffic\n");
+				sb.append(this.getString(R.string.enable_data));
 			if (isWifiEnabled())
-				sb.append("Please disable: Wifi\n");
+				sb.append(this.getString(R.string.disable_wifi));
 			if (!isGPSSettingsEnabled())
-				sb.append("Please enable: GPS\n");
+				sb.append(this.getString(R.string.enable_gps));
 			
 			builder.setMessage(sb.toString());
 			builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
@@ -240,10 +240,12 @@ public class MainActivity extends Activity {
 	        new CountryThread().execute();
         }
     }
-    private void pickRandomAPIKey(){
+
+    private void pickAPIKey(){
         final Random rand = new Random();
         int chooseAPIKEY = rand.nextInt(KEYS.length);
         API_KEY = KEYS[chooseAPIKEY];
+        
         Log.d(LOG_TAG,"Random: " + chooseAPIKEY + " API_KEY " + API_KEY);
     }
     private void warningDialog(){
