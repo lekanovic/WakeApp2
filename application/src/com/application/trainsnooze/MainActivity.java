@@ -97,6 +97,8 @@ public class MainActivity extends Activity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         countryCode = prefs.getString("country","se").toLowerCase(Locale.getDefault());
 
+        getWindow().setBackgroundDrawableResource(R.drawable.background);
+        
         finalDestination = new Location("Destination");
 		mDataBaseHandler = new DataBaseHandler(MainActivity.this);
 				
