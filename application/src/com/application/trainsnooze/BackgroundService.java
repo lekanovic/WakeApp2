@@ -70,14 +70,7 @@ public class BackgroundService extends Service {
                 int distance;
                 currentSpeed = location.getSpeed();
                 distance = Math.round(location.distanceTo(finalDestination));
-                Log.d(LOG_TAG,"onLocationChanged " + location.getProvider()
-                                    + " Speed: " + currentSpeed + " " +
-                		" Distance " + distance + " hasRestartedGPS " + hasRestartedGPS);
-                String str = "onLocationChanged " + location.getProvider()
-                        + " Speed: " + currentSpeed + " " +
-    		" Distance " + distance + " hasRestartedGPS " + hasRestartedGPS;
-                
-                Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
+
                 // When we are closing in to our destination we should increase the
                 // GPS update freq so that we do not miss the station.
                 // Why 1800 meters?
@@ -85,8 +78,7 @@ public class BackgroundService extends Service {
                 // We check GPS pos every 60seconds. Meaning in worst case we can travel 60*30=1800meters
                 // before we check GPS and this will make us to miss our final destination.
                 if ( distance > setradius && distance < (1800 - setradius) && !hasRestartedGPS) {
-                	Log.d(LOG_TAG,"restarting GPS with high freq mode");
-                	Toast.makeText(getApplicationContext(), "restarting GPS with high freq mode", Toast.LENGTH_LONG).show();
+                	Log.d(LOG_TAG,"restarting GPS with high freq mode");                	
                 	restartGPS(1);
                 	hasRestartedGPS=Boolean.TRUE;
                 }
